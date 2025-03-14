@@ -1,6 +1,7 @@
 Bluetooth Audio ALSA Backend [![Build Status](https://travis-ci.org/Arkq/bluez-alsa.svg?branch=master)](https://travis-ci.org/Arkq/bluez-alsa)
 ============================
 
+
 This project is a rebirth of a direct integration between [BlueZ](http://www.bluez.org/) and
 [ALSA](http://www.alsa-project.org/). Since BlueZ >= 5, the build-in integration has been removed
 in favor of 3rd party audio applications. From now on, BlueZ acts as a middleware between an
