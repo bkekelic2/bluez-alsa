@@ -612,6 +612,18 @@ static int rfcomm_handler_xapl_resp_cb(struct rfcomm_conn *c, const struct bt_at
 	return 0;
 }
 
+static int rfcomm_handler_cnum_resp_cb(struct ba_rfcomm *r, const struct bt_at *at) {
+    const char *number = "+33785812510"; // Replace with the desired number
+    char response[64];
+
+    snprintf(response, sizeof(response), "+CNUM: ,\"%s\",145,,4", number);
+    
+    if (rfcomm_write_at(r->fd, AT_TYPE_RESP, NULL, response) == -1)
+        return -1;
+
+    return 0;
+}
+
 static const struct rfcomm_handler rfcomm_handler_resp_ok = {
 	AT_TYPE_RESP, "", rfcomm_handler_resp_ok_cb };
 static const struct rfcomm_handler rfcomm_handler_cind_test = {
@@ -658,6 +670,8 @@ static const struct rfcomm_handler rfcomm_handler_xapl_set = {
 	AT_TYPE_CMD_SET, "+XAPL", rfcomm_handler_xapl_set_cb };
 static const struct rfcomm_handler rfcomm_handler_xapl_resp = {
 	AT_TYPE_RESP, "+XAPL", rfcomm_handler_xapl_resp_cb };
+static const struct rfcomm_handler rfcomm_handler_cnum_resp = {
+	AT_TYPE_CMD, "+CNUM", rfcomm_handler_cnum_resp_cb };
 
 /**
  * Get callback (if available) for given AT message. */
@@ -684,6 +698,7 @@ static rfcomm_callback *rfcomm_get_callback(const struct bt_at *at) {
 		&rfcomm_handler_iphoneaccev_set,
 		&rfcomm_handler_xapl_set,
 		&rfcomm_handler_xapl_resp,
+		&rfcomm_handler_cnum_resp,
 	};
 
 	size_t i;
