@@ -128,7 +128,7 @@ void ba_device_unref(struct ba_device *d) {
 	if (ref_count > 0)
 		return;
 
-	debug("Freeing device: %s", batostr_(&d->addr));
+	warn("Freeing device: %s", batostr_(&d->addr));
 
 	ba_adapter_unref(a);
 	g_hash_table_unref(d->transports);

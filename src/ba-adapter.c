@@ -148,7 +148,7 @@ void ba_adapter_unref(struct ba_adapter *a) {
 	if (ref_count > 0)
 		return;
 
-	debug("Freeing adapter: %s", a->hci.name);
+	warn("Freeing adapter: %s", a->hci.name);
 
 	/* make sure that the SCO dispatcher is terminated before free() */
 	if (!pthread_equal(a->sco_dispatcher, config.main_thread)) {

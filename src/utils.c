@@ -388,7 +388,7 @@ const char *bluetooth_a2dp_codec_to_string(uint16_t codec) {
 		return "LDAC";
 #endif
 	}
-	debug("Unknown codec: %#x", codec);
+	warn("Unknown codec: %#x", codec);
 	return "N/A";
 }
 
@@ -484,7 +484,7 @@ const char *ba_transport_type_to_string(struct ba_transport_type type) {
 	case BA_TRANSPORT_PROFILE_RFCOMM | BA_TRANSPORT_PROFILE_HSP_AG:
 		return "RFCOMM: HSP Audio Gateway";
 	}
-	debug("Unknown transport type: %#x %#x", type.profile, type.codec);
+	warn("Unknown transport type: %#x %#x", type.profile, type.codec);
 	return "N/A";
 }
 
@@ -526,7 +526,7 @@ const char *lame_encode_strerror(int err) {
 	case -4:
 		return "Psycho acoustic error";
 	default:
-		debug("Unknown error code: %#x", err);
+		warn("Unknown error code: %#x", err);
 		return "Unknown error";
 	}
 }
@@ -603,7 +603,7 @@ const char *aacdec_strerror(AAC_DECODER_ERROR err) {
 	case AAC_DEC_TOO_MANY_ANC_ELEMENTS:
 		return "Too many ancillary elements";
 	default:
-		debug("Unknown error code: %#x", err);
+		warn("Unknown error code: %#x", err);
 		return "Unknown error";
 	}
 }
@@ -642,7 +642,7 @@ const char *aacenc_strerror(AACENC_ERROR err) {
 	case AACENC_ENCODE_EOF:
 		return "End of file";
 	default:
-		debug("Unknown error code: %#x", err);
+		warn("Unknown error code: %#x", err);
 		return "Unknown error";
 	}
 }
@@ -686,7 +686,7 @@ const char *ldacBT_strerror(int err) {
 	case LDACBT_ERR_ILL_MTU_SIZE:
 		return "Unsupported MTU";
 	default:
-		debug("Unknown error code: %#x", err);
+		warn("Unknown error code: %#x", err);
 		return "Unknown error";
 	}
 }

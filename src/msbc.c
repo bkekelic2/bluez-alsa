@@ -70,7 +70,7 @@ int msbc_init(struct esco_msbc *msbc) {
 		sbc_finish(&msbc->enc_sbc);
 	}
 
-	debug("Initializing mSBC encoder/decoder");
+	warn("Initializing mSBC encoder/decoder");
 	if ((errno = -sbc_init_msbc(&msbc->dec_sbc, 0)) != 0)
 		goto fail;
 	if ((errno = -sbc_init_msbc(&msbc->enc_sbc, 0)) != 0)

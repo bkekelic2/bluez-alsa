@@ -405,7 +405,7 @@ static void bluez_endpoint_select_configuration(GDBusMethodInvocation *inv, void
 #endif
 
 	default:
-		debug("Endpoint path not supported: %s", dbus_obj->path);
+		warn("Endpoint path not supported: %s", dbus_obj->path);
 		g_dbus_method_invocation_return_error(inv, G_DBUS_ERROR,
 				G_DBUS_ERROR_UNKNOWN_OBJECT, "Not supported");
 		goto final;
@@ -635,10 +635,10 @@ static void bluez_endpoint_set_configuration(GDBusMethodInvocation *inv, void *u
 	t->a2dp.pcm.volume[1].level = volume;
 	t->a2dp.delay = delay;
 
-	debug("%s configured for device %s",
+	warn("%s configured for device %s",
 			ba_transport_type_to_string(t->type),
 			batostr_(&d->addr));
-	debug("Configuration: channels: %u, sampling: %u",
+	warn("Configuration: channels: %u, sampling: %u",
 			t->a2dp.pcm.channels, t->a2dp.pcm.sampling);
 
 	bluez_a2dp_set_transport_state(t, state);
@@ -675,7 +675,7 @@ static void bluez_endpoint_clear_configuration(GDBusMethodInvocation *inv, void 
 	struct ba_device *d = NULL;
 	struct ba_transport *t = NULL;
 
-	debug("Disconnecting media endpoint: %s", dbus_obj->path);
+	warn("Disconnecting media endpoint: %s", dbus_obj->path);
 	dbus_obj->connected = false;
 
 	const char *transport_path;
@@ -704,7 +704,7 @@ static void bluez_endpoint_release(GDBusMethodInvocation *inv, void *userdata) {
 
 	struct dbus_object_data *dbus_obj = userdata;
 
-	debug("Releasing media endpoint: %s", dbus_obj->path);
+	warn("Releasing media endpoint: %s", dbus_obj->path);
 	dbus_obj->connected = false;
 	dbus_obj->registered = false;
 
@@ -716,7 +716,7 @@ static void bluez_register_a2dp_all(struct ba_adapter *adapter);
 static void bluez_endpoint_method_call(GDBusConnection *conn, const char *sender,
 		const char *path, const char *interface, const char *method, GVariant *params,
 		GDBusMethodInvocation *invocation, void *userdata) {
-	debug("Called: %s.%s()", interface, method);
+	warn("Called: %s.%s()", interface, method);
 	(void)conn;
 	(void)sender;
 	(void)path;
@@ -761,7 +761,7 @@ static struct dbus_object_data *bluez_create_media_endpoint_object(
 		.ttype = ttype,
 	};
 
-	debug("Creating media endpoint object: %s", path);
+	warn("Creating media endpoint object: %s", path);
 
 	strncpy(dbus_object.path, path, sizeof(dbus_object.path));
 	dbus_obj = g_memdup(&dbus_object, sizeof(dbus_object));
@@ -790,7 +790,7 @@ static int bluez_register_media_endpoint(
 	int ret = 0;
 	size_t i;
 
-	debug("Registering media endpoint: %s", dbus_obj->path);
+	warn("Registering media endpoint: %s", dbus_obj->path);
 
 	msg = g_dbus_message_new_method_call(BLUEZ_SERVICE, adapter->bluez_dbus_path,
 			BLUEZ_IFACE_MEDIA, "RegisterEndpoint");
@@ -965,7 +965,7 @@ static void bluez_profile_new_connection(GDBusMethodInvocation *inv, void *userd
 		goto fail;
 	}
 
-	debug("%s configured for device %s",
+	warn("%s configured for device %s",
 			ba_transport_type_to_string(t->type),
 			batostr_(&d->addr));
 
@@ -999,7 +999,7 @@ static void bluez_profile_request_disconnection(GDBusMethodInvocation *inv, void
 	GVariant *params = g_dbus_method_invocation_get_parameters(inv);
 	struct dbus_object_data *dbus_obj = userdata;
 
-	debug("Disconnecting hands-free profile: %s", dbus_obj->path);
+	warn("Disconnecting hands-free profile: %s", dbus_obj->path);
 	dbus_obj->connected = false;
 
 	struct ba_adapter *a = NULL;
@@ -1033,7 +1033,7 @@ static void bluez_profile_release(GDBusMethodInvocation *inv, void *userdata) {
 
 	struct dbus_object_data *dbus_obj = userdata;
 
-	debug("Releasing hands-free profile: %s", dbus_obj->path);
+	warn("Releasing hands-free profile: %s", dbus_obj->path);
 	dbus_obj->connected = false;
 	dbus_obj->registered = false;
 
@@ -1043,7 +1043,7 @@ static void bluez_profile_release(GDBusMethodInvocation *inv, void *userdata) {
 static void bluez_profile_method_call(GDBusConnection *conn, const char *sender,
 		const char *path, const char *interface, const char *method, GVariant *params,
 		GDBusMethodInvocation *invocation, void *userdata) {
-	debug("Called: %s.%s()", interface, method);
+	warn("Called: %s.%s()", interface, method);
 	(void)conn;
 	(void)sender;
 	(void)path;
@@ -1075,7 +1075,7 @@ static struct dbus_object_data *bluez_create_profile_object(
 		.ttype = ttype,
 	};
 
-	debug("Creating hands-free profile object: %s", path);
+	warn("Creating hands-free profile object: %s", path);
 
 	strncpy(dbus_object.path, path, sizeof(dbus_object.path));
 	dbus_obj = g_memdup(&dbus_object, sizeof(dbus_object));
@@ -1103,7 +1103,7 @@ static int bluez_register_profile(
 	GDBusMessage *msg = NULL, *rep = NULL;
 	int ret = 0;
 
-	debug("Registering hands-free profile: %s", dbus_obj->path);
+	warn("Registering hands-free profile: %s", dbus_obj->path);
 
 	msg = g_dbus_message_new_method_call(BLUEZ_SERVICE, "/org/bluez",
 			BLUEZ_IFACE_PROFILE_MANAGER, "RegisterProfile");
@@ -1261,7 +1261,7 @@ void bluez_register(void) {
 static void bluez_signal_interfaces_added(GDBusConnection *conn, const char *sender,
 		const char *path, const char *interface_, const char *signal, GVariant *params,
 		void *userdata) {
-	debug("Signal: %s.%s()", interface_, signal);
+	warn("Signal: %s.%s()", interface_, signal);
 	(void)conn;
 	(void)sender;
 	(void)path;
@@ -1304,7 +1304,7 @@ static void bluez_signal_interfaces_added(GDBusConnection *conn, const char *sen
 static void bluez_signal_interfaces_removed(GDBusConnection *conn, const char *sender,
 		const char *path, const char *interface_, const char *signal, GVariant *params,
 		void *userdata) {
-	debug("Signal: %s.%s()", interface_, signal);
+	warn("Signal: %s.%s()", interface_, signal);
 	(void)sender;
 	(void)path;
 	(void)userdata;
@@ -1343,7 +1343,7 @@ static void bluez_signal_interfaces_removed(GDBusConnection *conn, const char *s
 static void bluez_signal_transport_changed(GDBusConnection *conn, const char *sender,
 		const char *transport_path, const char *interface_, const char *signal, GVariant *params,
 		void *userdata) {
-	debug("Signal: %s.%s()", interface_, signal);
+	warn("Signal: %s.%s()", interface_, signal);
 	(void)conn;
 	(void)sender;
 	(void)userdata;
@@ -1377,7 +1377,7 @@ static void bluez_signal_transport_changed(GDBusConnection *conn, const char *se
 
 	g_variant_get(params, "(&sa{sv}as)", &interface, &properties, NULL);
 	while (g_variant_iter_next(properties, "{&sv}", &property, &value)) {
-		debug("Signal: %s: %s: %s", signal, interface, property);
+		warn("Signal: %s: %s: %s", signal, interface, property);
 
 		if (strcmp(property, "State") == 0 &&
 				g_variant_validate_value(value, G_VARIANT_TYPE_STRING, property)) {

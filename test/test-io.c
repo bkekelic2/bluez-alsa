@@ -34,17 +34,17 @@
 #include "../src/shared/rt.c"
 
 unsigned int bluealsa_dbus_pcm_register(struct ba_transport *t, GError **error) {
-	debug("%s: %p", __func__, (void *)t); (void)error; return 0; }
+	warn("%s: %p", __func__, (void *)t); (void)error; return 0; }
 void bluealsa_dbus_pcm_update(struct ba_transport *t, unsigned int mask) {
-	debug("%s: %p %#x", __func__, (void *)t, mask); }
+	warn("%s: %p %#x", __func__, (void *)t, mask); }
 void bluealsa_dbus_pcm_unregister(struct ba_transport *t) {
-	debug("%s: %p", __func__, (void *)t); }
+	warn("%s: %p", __func__, (void *)t); }
 unsigned int bluealsa_dbus_rfcomm_register(struct ba_transport *t, GError **error) {
-	debug("%s: %p", __func__, (void *)t); (void)error; return 0; }
+	warn("%s: %p", __func__, (void *)t); (void)error; return 0; }
 void bluealsa_dbus_rfcomm_update(struct ba_transport *t, unsigned int mask) {
-	debug("%s: %p %#x", __func__, (void *)t, mask); }
+	warn("%s: %p %#x", __func__, (void *)t, mask); }
 void bluealsa_dbus_rfcomm_unregister(struct ba_transport *t) {
-	debug("%s: %p", __func__, (void *)t); }
+	warn("%s: %p", __func__, (void *)t); }
 
 static const a2dp_sbc_t config_sbc_44100_stereo = {
 	.frequency = SBC_SAMPLING_FREQ_44100,
@@ -209,7 +209,7 @@ static void *test_io_thread_a2dp_dump_bt(struct ba_transport *t) {
 	while (poll(pfds, ARRAYSIZE(pfds), 500) > 0) {
 
 		if ((len = read(pfds[0].fd, buffer, sizeof(buffer))) == -1) {
-			debug("BT read error: %s", strerror(errno));
+			warn("BT read error: %s", strerror(errno));
 			continue;
 		}
 
@@ -241,22 +241,22 @@ static void *test_io_thread_a2dp_dump_pcm(struct ba_transport *t) {
 		ck_assert_ptr_ne(f = fopen(fname, "w"), NULL);
 	}
 
-	debug("Starting PCM dump: %d", pfds[0].fd);
+	warn("Starting PCM dump: %d", pfds[0].fd);
 	while (poll(pfds, ARRAYSIZE(pfds), 500) > 0) {
 
 		if ((len = read(pfds[0].fd, buffer, sizeof(buffer))) == -1) {
-			debug("PCM read error: %s", strerror(errno));
+			warn("PCM read error: %s", strerror(errno));
 			continue;
 		}
 
-		debug("Decoded samples: %zd", len / sizeof(int16_t));
+		warn("Decoded samples: %zd", len / sizeof(int16_t));
 		decoded_samples_total += len / sizeof(int16_t);
 
 		if (f != NULL)
 			fwrite(buffer, 1, len, f);
 	}
 
-	debug("Decoded samples total: %zd", decoded_samples_total);
+	warn("Decoded samples total: %zd", decoded_samples_total);
 
 	if (f != NULL)
 		fclose(f);
@@ -362,13 +362,13 @@ static void test_sco(struct ba_transport *t, void *(*cb)(struct ba_transport *))
 
 		if (pfds[1].revents & POLLIN) {
 			ck_assert_int_gt(len = read(pcm_mic_fds[0], buffer, sizeof(buffer)), 0);
-			debug("Decoded samples: %zd", len / sizeof(int16_t));
+			warn("Decoded samples: %zd", len / sizeof(int16_t));
 			decoded_samples_total += len / sizeof(int16_t);
 		}
 
 	}
 
-	debug("Decoded samples total: %zd", decoded_samples_total);
+	warn("Decoded samples total: %zd", decoded_samples_total);
 
 	ck_assert_int_eq(pthread_cancel(thread), 0);
 	ck_assert_int_eq(pthread_timedjoin(thread, NULL, 1e6), 0);
@@ -379,7 +379,7 @@ static void test_sco(struct ba_transport *t, void *(*cb)(struct ba_transport *))
 }
 
 static int test_transport_acquire(struct ba_transport *t) {
-	debug("Acquire transport: %d", t->bt_fd);
+	warn("Acquire transport: %d", t->bt_fd);
 	return 0;
 }
 

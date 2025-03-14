@@ -152,7 +152,7 @@ static void bluealsa_manager_get_pcms(GDBusMethodInvocation *inv, void *userdata
 static void bluealsa_manager_method_call(GDBusConnection *conn, const char *sender,
 		const char *path, const char *interface, const char *method, GVariant *params,
 		GDBusMethodInvocation *invocation, void *userdata) {
-	debug("Called: %s.%s()", interface, method);
+	warn("Called: %s.%s()", interface, method);
 	(void)conn;
 	(void)sender;
 	(void)path;
@@ -379,7 +379,7 @@ final:
 static void bluealsa_pcm_method_call(GDBusConnection *conn, const char *sender,
 		const char *path, const char *interface, const char *method, GVariant *params,
 		GDBusMethodInvocation *invocation, void *userdata) {
-	debug("Called: %s.%s()", interface, method);
+	warn("Called: %s.%s()", interface, method);
 	(void)conn;
 	(void)sender;
 	(void)path;
@@ -421,7 +421,7 @@ static void bluealsa_rfcomm_open(GDBusMethodInvocation *inv, void *userdata) {
 static void bluealsa_rfcomm_method_call(GDBusConnection *conn, const char *sender,
 		const char *path, const char *interface, const char *method, GVariant *params,
 		GDBusMethodInvocation *invocation, void *userdata) {
-	debug("Called: %s.%s()", interface, method);
+	warn("Called: %s.%s()", interface, method);
 	(void)conn;
 	(void)sender;
 	(void)path;

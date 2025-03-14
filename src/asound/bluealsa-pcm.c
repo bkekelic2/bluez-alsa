@@ -82,7 +82,7 @@ struct bluealsa_pcm {
 /**
  * Helper debug macro for internal usage. */
 #define debug2(M, ...) \
-	debug("%s: " M, pcm->ba_pcm.pcm_path, ## __VA_ARGS__)
+	warn("%s: " M, pcm->ba_pcm.pcm_path, ## __VA_ARGS__)
 
 /**
  * Helper function for closing PCM transport. */

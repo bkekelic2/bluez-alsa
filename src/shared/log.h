@@ -31,7 +31,7 @@ void info(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 
 #if DEBUG
 void _debug(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
-# define debug(M, ...) _debug("%s:%d: " M, __FILE__, __LINE__, ## __VA_ARGS__)
+# define debug(M, ...) _warn("%s:%d: " M, __FILE__, __LINE__, ## __VA_ARGS__)
 #else
 # define debug(M, ...) do {} while (0)
 #endif

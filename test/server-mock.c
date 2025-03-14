@@ -77,11 +77,11 @@ static void test_sigusr_handler(int sig) {
 	switch (sig) {
 	case SIGUSR1:
 		sigusr1_count++;
-		debug("Dispatching SIGUSR1: %d", sigusr1_count);
+		warn("Dispatching SIGUSR1: %d", sigusr1_count);
 		break;
 	case SIGUSR2:
 		sigusr2_count++;
-		debug("Dispatching SIGUSR2: %d", sigusr2_count);
+		warn("Dispatching SIGUSR2: %d", sigusr2_count);
 		break;
 	default:
 		error("Unsupported signal: %d", sig);

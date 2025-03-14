@@ -312,7 +312,7 @@ int main(int argc, char **argv) {
 
 #if ENABLE_OFONO
 	if ((config.enable.hfp_ag || config.enable.hfp_hf) && config.enable.hfp_ofono) {
-		info("Disabling native HFP support due to enabled oFono profile");
+		warn("Disabling native HFP support due to enabled oFono profile");
 		config.enable.hfp_ag = false;
 		config.enable.hfp_hf = false;
 	}
@@ -375,15 +375,15 @@ int main(int argc, char **argv) {
 	sigaction(SIGINT, &sigact, NULL);
 
 	/* register well-known service name */
-	debug("Acquiring D-Bus service name: %s", dbus_service);
+	warn("Acquiring D-Bus service name: %s", dbus_service);
 	g_bus_own_name_on_connection(config.dbus, dbus_service,
 			G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE, NULL, dbus_name_lost, NULL, NULL);
 
 	/* main dispatching loop */
-	debug("Starting main dispatching loop");
+	warn("Starting main dispatching loop");
 	loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);
 
-	debug("Exiting main loop");
+	warn("Exiting main loop");
 	return retval;
 }

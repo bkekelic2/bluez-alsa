@@ -26,17 +26,17 @@ int a2dp_thread_create(struct ba_transport *t) { (void)t; return 0; }
 void *rfcomm_thread(struct ba_transport *t) { (void)t; return 0; }
 void *sco_thread(struct ba_transport *t) { (void)t; return 0; }
 unsigned int bluealsa_dbus_pcm_register(struct ba_transport *t, GError **error) {
-	debug("%s: %p", __func__, (void *)t); (void)error; return 0; }
+	warn("%s: %p", __func__, (void *)t); (void)error; return 0; }
 void bluealsa_dbus_pcm_update(struct ba_transport *t, unsigned int mask) {
-	debug("%s: %p %#x", __func__, (void *)t, mask); }
+	warn("%s: %p %#x", __func__, (void *)t, mask); }
 void bluealsa_dbus_pcm_unregister(struct ba_transport *t) {
-	debug("%s: %p", __func__, (void *)t); }
+	warn("%s: %p", __func__, (void *)t); }
 unsigned int bluealsa_dbus_rfcomm_register(struct ba_transport *t, GError **error) {
-	debug("%s: %p", __func__, (void *)t); (void)error; return 0; }
+	warn("%s: %p", __func__, (void *)t); (void)error; return 0; }
 void bluealsa_dbus_rfcomm_update(struct ba_transport *t, unsigned int mask) {
-	debug("%s: %p %#x", __func__, (void *)t, mask); }
+	warn("%s: %p %#x", __func__, (void *)t, mask); }
 void bluealsa_dbus_rfcomm_unregister(struct ba_transport *t) {
-	debug("%s: %p", __func__, (void *)t); }
+	warn("%s: %p", __func__, (void *)t); }
 
 START_TEST(test_ba_adapter) {
 

@@ -123,7 +123,7 @@ unsigned int hci_sco_get_mtu(int sco_fd) {
 	if (getsockopt(sco_fd, SOL_BLUETOOTH, BT_VOICE, &voice, &len) == -1)
 		warn("Couldn't get SCO voice options: %s", strerror(errno));
 
-	debug("SCO link socket MTU: %d: %u", sco_fd, options.mtu);
+	warn("SCO link socket MTU: %d: %u", sco_fd, options.mtu);
 
 	/* XXX: It seems, that the MTU value returned by kernel
 	 *      is incorrect (or our interpretation of it). */

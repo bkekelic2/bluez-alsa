@@ -279,7 +279,7 @@ static int pause_device_player(const struct ba_pcm *ba_pcm) {
 		goto fail;
 	}
 
-	debug("Requested playback pause");
+	warn("Requested playback pause");
 	goto final;
 
 fail:
@@ -307,7 +307,7 @@ static void pcm_worker_routine_exit(struct pcm_worker *worker) {
 		snd_pcm_close(worker->pcm);
 		worker->pcm = NULL;
 	}
-	debug("Exiting PCM worker %s", worker->addr);
+	warn("Exiting PCM worker %s", worker->addr);
 }
 
 static void *pcm_worker_routine(struct pcm_worker *w) {
@@ -353,7 +353,7 @@ static void *pcm_worker_routine(struct pcm_worker *w) {
 	struct pollfd pfds[] = {{ w->ba_pcm_fd, POLLIN, 0 }};
 	int timeout = -1;
 
-	debug("Starting PCM loop");
+	warn("Starting PCM loop");
 	while (main_loop_on) {
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 
@@ -370,7 +370,7 @@ static void *pcm_worker_routine(struct pcm_worker *w) {
 			error("PCM FIFO poll error: %s", strerror(errno));
 			goto fail;
 		case 0:
-			debug("Device marked as inactive: %s", w->addr);
+			warn("Device marked as inactive: %s", w->addr);
 			pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
 			pcm_max_read_len = pcm_1s_samples / 100;
 			pause_counter = pause_bytes = 0;
@@ -471,7 +471,7 @@ static void *pcm_worker_routine(struct pcm_worker *w) {
 		if ((frames = snd_pcm_writei(w->pcm, buffer.data, frames)) < 0)
 			switch (-frames) {
 			case EPIPE:
-				debug("An underrun has occurred");
+				warn("An underrun has occurred");
 				snd_pcm_prepare(w->pcm);
 				usleep(50000);
 				frames = 0;
@@ -522,7 +522,7 @@ static int supervise_pcm_worker_start(struct ba_pcm *ba_pcm) {
 
 	pthread_rwlock_unlock(&workers_lock);
 
-	debug("Creating PCM worker %s", worker->addr);
+	warn("Creating PCM worker %s", worker->addr);
 
 	if ((errno = pthread_create(&worker->thread, NULL,
 					PTHREAD_ROUTINE(pcm_worker_routine), worker)) != 0) {
@@ -564,7 +564,7 @@ static int supervise_pcm_worker(struct ba_pcm *ba_pcm) {
 	/* check whether SCO has selected codec */
 	if (ba_pcm->flags & BA_PCM_FLAG_PROFILE_SCO &&
 			ba_pcm->codec == 0) {
-		debug("Skipping SCO with codec not selected");
+		warn("Skipping SCO with codec not selected");
 		goto stop;
 	}
 
@@ -798,7 +798,7 @@ usage:
 	sigaction(SIGTERM, &sigact, NULL);
 	sigaction(SIGINT, &sigact, NULL);
 
-	debug("Starting main loop");
+	warn("Starting main loop");
 	while (main_loop_on) {
 
 		struct pollfd pfds[10];

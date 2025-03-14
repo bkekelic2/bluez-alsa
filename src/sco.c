@@ -43,7 +43,7 @@ struct sco_data {
 };
 
 static void sco_dispatcher_cleanup(struct sco_data *data) {
-	debug("SCO dispatcher cleanup: %s", data->a->hci.name);
+	warn("SCO dispatcher cleanup: %s", data->a->hci.name);
 	if (data->pfd.fd != -1)
 		close(data->pfd.fd);
 }
@@ -73,7 +73,7 @@ static void *sco_dispatcher_thread(struct ba_adapter *a) {
 		goto fail;
 	}
 
-	debug("Starting SCO dispatcher loop: %s", a->hci.name);
+	warn("Starting SCO dispatcher loop: %s", a->hci.name);
 	for (;;) {
 
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -99,7 +99,7 @@ static void *sco_dispatcher_thread(struct ba_adapter *a) {
 			goto cleanup;
 		}
 
-		debug("New incoming SCO link: %s: %d", batostr_(&addr.sco_bdaddr), fd);
+		warn("New incoming SCO link: %s: %d", batostr_(&addr.sco_bdaddr), fd);
 
 		if ((d = ba_device_lookup(data.a, &addr.sco_bdaddr)) == NULL) {
 			error("Couldn't lookup device: %s", batostr_(&addr.sco_bdaddr));
@@ -166,15 +166,15 @@ int sco_setup_connection_dispatcher(struct ba_adapter *a) {
 		int dd;
 		uint8_t routing, clock, frame, sync, clk;
 
-		debug("Checking Broadcom internal SCO routing");
+		warn("Checking Broadcom internal SCO routing");
 
 		if ((dd = hci_open_dev(a->hci.dev_id)) == -1 ||
 				hci_bcm_read_sco_pcm_params(dd, &routing, &clock, &frame, &sync, &clk, 1000) == -1)
 			error("Couldn't read SCO routing params: %s", strerror(errno));
 		else {
-			debug("Current SCO interface setup: %u %u %u %u %u", routing, clock, frame, sync, clk);
+			warn("Current SCO interface setup: %u %u %u %u %u", routing, clock, frame, sync, clk);
 			if (routing != BT_BCM_PARAM_ROUTING_TRANSPORT) {
-				debug("Setting SCO routing via transport interface");
+				warn("Setting SCO routing via transport interface");
 				if (hci_bcm_write_sco_pcm_params(dd, BT_BCM_PARAM_ROUTING_TRANSPORT,
 						clock, frame, sync, clk, 1000) == -1)
 				error("Couldn't write SCO routing params: %s", strerror(errno));
@@ -200,7 +200,7 @@ int sco_setup_connection_dispatcher(struct ba_adapter *a) {
 	}
 
 	pthread_setname_np(a->sco_dispatcher, "ba-sco-dispatch");
-	debug("Created SCO dispatcher [%s]: %s", "ba-sco-dispatch", a->hci.name);
+	warn("Created SCO dispatcher [%s]: %s", "ba-sco-dispatch", a->hci.name);
 
 	return 0;
 }
@@ -241,7 +241,7 @@ void *sco_thread(struct ba_transport *t) {
 		{ -1, POLLOUT, 0 },
 	};
 
-	debug("Starting SCO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting SCO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		/* fresh-start for file descriptors polling */
@@ -331,7 +331,7 @@ void *sco_thread(struct ba_transport *t) {
 				 * signal even though we are not reading it! */
 				if (t->type.profile & BA_TRANSPORT_PROFILE_MASK_AG &&
 						t->sco.spk_pcm.fd == -1 && t->sco.mic_pcm.fd == -1) {
-					debug("Releasing SCO due to PCM inactivity");
+					warn("Releasing SCO due to PCM inactivity");
 					t->release(t);
 				}
 				continue;
@@ -413,7 +413,7 @@ retry_sco_read:
 
 		}
 		else if (pfds[1].revents & (POLLERR | POLLHUP)) {
-			debug("SCO poll error status: %#x", pfds[1].revents);
+			warn("SCO poll error status: %#x", pfds[1].revents);
 			t->release(t);
 		}
 
@@ -513,7 +513,7 @@ retry_sco_write:
 
 		}
 		else if (pfds[3].revents & (POLLERR | POLLHUP)) {
-			debug("PCM poll error status: %#x", pfds[3].revents);
+			warn("PCM poll error status: %#x", pfds[3].revents);
 			ba_transport_release_pcm(&t->sco.spk_pcm);
 			ba_transport_send_signal(t, BA_TRANSPORT_SIGNAL_PCM_CLOSE);
 		}

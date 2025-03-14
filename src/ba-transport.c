@@ -328,7 +328,7 @@ void ba_transport_unref(struct ba_transport *t) {
 	if (ref_count > 0)
 		return;
 
-	debug("Freeing transport: %s", ba_transport_type_to_string(t->type));
+	warn("Freeing transport: %s", ba_transport_type_to_string(t->type));
 
 	if (t->bt_fd != -1)
 		close(t->bt_fd);
@@ -474,7 +474,7 @@ static void transport_update_channels(struct ba_transport *t) {
 				t->a2dp.pcm.channels = 2;
 				return;
 			default:
-				debug("Invalid channel mode: %#x",
+				warn("Invalid channel mode: %#x",
 						((a2dp_sbc_t *)t->a2dp.cconfig)->channel_mode);
 				t->a2dp.pcm.channels = 0;
 				return;
@@ -491,7 +491,7 @@ static void transport_update_channels(struct ba_transport *t) {
 				t->a2dp.pcm.channels = 2;
 				return;
 			default:
-				debug("Invalid channel mode: %#x",
+				warn("Invalid channel mode: %#x",
 						((a2dp_mpeg_t *)t->a2dp.cconfig)->channel_mode);
 				t->a2dp.pcm.channels = 0;
 				return;
@@ -507,7 +507,7 @@ static void transport_update_channels(struct ba_transport *t) {
 				t->a2dp.pcm.channels = 2;
 				return;
 			default:
-				debug("Invalid channel mode: %#x",
+				warn("Invalid channel mode: %#x",
 						((a2dp_aac_t *)t->a2dp.cconfig)->channels);
 				t->a2dp.pcm.channels = 0;
 				return;
@@ -523,7 +523,7 @@ static void transport_update_channels(struct ba_transport *t) {
 				t->a2dp.pcm.channels = 2;
 				return;
 			default:
-				debug("Invalid channel mode: %#x",
+				warn("Invalid channel mode: %#x",
 						((a2dp_aptx_t *)t->a2dp.cconfig)->channel_mode);
 				t->a2dp.pcm.channels = 0;
 				return;
@@ -539,7 +539,7 @@ static void transport_update_channels(struct ba_transport *t) {
 				t->a2dp.pcm.channels = 2;
 				return;
 			default:
-				debug("Invalid channel mode: %#x",
+				warn("Invalid channel mode: %#x",
 						((a2dp_aptx_hd_t *)t->a2dp.cconfig)->aptx.channel_mode);
 				t->a2dp.pcm.channels = 0;
 				return;
@@ -556,7 +556,7 @@ static void transport_update_channels(struct ba_transport *t) {
 				t->a2dp.pcm.channels = 2;
 				return;
 			default:
-				debug("Invalid channel mode: %#x",
+				warn("Invalid channel mode: %#x",
 						((a2dp_ldac_t *)t->a2dp.cconfig)->channel_mode);
 				t->a2dp.pcm.channels = 0;
 				return;
@@ -594,7 +594,7 @@ static void transport_update_sampling(struct ba_transport *t) {
 				t->a2dp.pcm.sampling = 48000;
 				return;
 			default:
-				debug("Invalid sampling frequency: %#x",
+				warn("Invalid sampling frequency: %#x",
 						((a2dp_sbc_t *)t->a2dp.cconfig)->frequency);
 				t->a2dp.pcm.sampling = 0;
 				return;
@@ -621,7 +621,7 @@ static void transport_update_sampling(struct ba_transport *t) {
 				t->a2dp.pcm.sampling = 48000;
 				return;
 			default:
-				debug("Invalid sampling frequency: %#x",
+				warn("Invalid sampling frequency: %#x",
 						((a2dp_mpeg_t *)t->a2dp.cconfig)->frequency);
 				t->a2dp.pcm.sampling = 0;
 				return;
@@ -667,7 +667,7 @@ static void transport_update_sampling(struct ba_transport *t) {
 				t->a2dp.pcm.sampling = 96000;
 				return;
 			default:
-				debug("Invalid sampling frequency: %#x",
+				warn("Invalid sampling frequency: %#x",
 						AAC_GET_FREQUENCY(*(a2dp_aac_t *)t->a2dp.cconfig));
 				t->a2dp.pcm.sampling = 0;
 				return;
@@ -689,7 +689,7 @@ static void transport_update_sampling(struct ba_transport *t) {
 				t->a2dp.pcm.sampling = 48000;
 				return;
 			default:
-				debug("Invalid sampling frequency: %#x",
+				warn("Invalid sampling frequency: %#x",
 						((a2dp_aptx_t *)t->a2dp.cconfig)->frequency);
 				t->a2dp.pcm.sampling = 0;
 				return;
@@ -711,7 +711,7 @@ static void transport_update_sampling(struct ba_transport *t) {
 				t->a2dp.pcm.sampling = 48000;
 				return;
 			default:
-				debug("Invalid sampling frequency: %#x",
+				warn("Invalid sampling frequency: %#x",
 						((a2dp_aptx_hd_t *)t->a2dp.cconfig)->aptx.frequency);
 				t->a2dp.pcm.sampling = 0;
 				return;
@@ -739,7 +739,7 @@ static void transport_update_sampling(struct ba_transport *t) {
 				t->a2dp.pcm.sampling = 192000;
 				return;
 			default:
-				debug("Invalid sampling frequency: %#x",
+				warn("Invalid sampling frequency: %#x",
 						((a2dp_ldac_t *)t->a2dp.cconfig)->frequency);
 				t->a2dp.pcm.sampling = 0;
 				return;
@@ -762,7 +762,7 @@ static void transport_update_sampling(struct ba_transport *t) {
 			t->sco.mic_pcm.sampling = 16000;
 			return;
 		default:
-			debug("Unsupported SCO codec: %#x", t->type.codec);
+			warn("Unsupported SCO codec: %#x", t->type.codec);
 			/* fall-through */
 		case HFP_CODEC_UNDEFINED:
 			t->sco.spk_pcm.sampling = 0;
@@ -812,7 +812,7 @@ int ba_transport_set_volume_packed(struct ba_transport *t, uint16_t value) {
 	uint8_t ch1 = value >> 8;
 	uint8_t ch2 = value & 0xFF;
 
-	debug("Setting volume: %d<>%d [%c%c]", ch1 & 0x7F, ch2 & 0x7F,
+	warn("Setting volume: %d<>%d [%c%c]", ch1 & 0x7F, ch2 & 0x7F,
 			ch1 & 0x80 ? 'M' : 'O', ch2 & 0x80 ? 'M' : 'O');
 
 	if (t->type.profile & BA_TRANSPORT_PROFILE_MASK_A2DP) {
@@ -861,7 +861,7 @@ int ba_transport_set_volume_packed(struct ba_transport *t, uint16_t value) {
 }
 
 int ba_transport_set_state(struct ba_transport *t, enum ba_transport_state state) {
-	debug("State transition: %d -> %d", t->state, state);
+	warn("State transition: %d -> %d", t->state, state);
 
 	if (t->state == state)
 		return 0;
@@ -945,7 +945,7 @@ int ba_transport_drain_pcm(struct ba_transport *t) {
 	 * is not implemented - it requires a little bit of refactoring. */
 	usleep(200000);
 
-	debug("PCM drained");
+	warn("PCM drained");
 	return 0;
 }
 
@@ -957,7 +957,7 @@ static int transport_acquire_bt_a2dp(struct ba_transport *t) {
 
 	/* Check whether transport is already acquired - keep-alive mode. */
 	if (t->bt_fd != -1) {
-		debug("Reusing transport: %d", t->bt_fd);
+		warn("Reusing transport: %d", t->bt_fd);
 		goto final;
 	}
 
@@ -990,7 +990,7 @@ static int transport_acquire_bt_a2dp(struct ba_transport *t) {
 	if (ioctl(t->bt_fd, TIOCOUTQ, &t->a2dp.bt_fd_coutq_init) == -1)
 		warn("Couldn't get socket queued bytes: %s", strerror(errno));
 
-	debug("New transport: %d (MTU: R:%zu W:%zu)", t->bt_fd, t->mtu_read, t->mtu_write);
+	warn("New transport: %d (MTU: R:%zu W:%zu)", t->bt_fd, t->mtu_read, t->mtu_write);
 
 fail:
 	g_object_unref(msg);
@@ -1017,7 +1017,7 @@ static int transport_release_bt_a2dp(struct ba_transport *t) {
 	if (t->bt_fd == -1)
 		return 0;
 
-	debug("Releasing transport: %s", ba_transport_type_to_string(t->type));
+	warn("Releasing transport: %s", ba_transport_type_to_string(t->type));
 
 	/* If the state is idle, it means that either transport was not acquired, or
 	 * was released by the BlueZ. In both cases there is no point in a explicit
@@ -1046,7 +1046,7 @@ static int transport_release_bt_a2dp(struct ba_transport *t) {
 
 	}
 
-	debug("Closing BT: %d", t->bt_fd);
+	warn("Closing BT: %d", t->bt_fd);
 
 	ret = 0;
 	close(t->bt_fd);
@@ -1069,7 +1069,7 @@ static int transport_release_bt_rfcomm(struct ba_transport *t) {
 	if (t->bt_fd == -1)
 		return 0;
 
-	debug("Closing RFCOMM: %d", t->bt_fd);
+	warn("Closing RFCOMM: %d", t->bt_fd);
 
 	shutdown(t->bt_fd, SHUT_RDWR);
 	close(t->bt_fd);
@@ -1091,7 +1091,7 @@ static int transport_release_bt_rfcomm(struct ba_transport *t) {
 static int transport_acquire_bt_sco(struct ba_transport *t) {
 
 	if (t->bt_fd != -1) {
-		debug("Reusing SCO: %d", t->bt_fd);
+		warn("Reusing SCO: %d", t->bt_fd);
 		return t->bt_fd;
 	}
 
@@ -1106,7 +1106,7 @@ static int transport_acquire_bt_sco(struct ba_transport *t) {
 		goto fail;
 	}
 
-	debug("New SCO link: %s: %d", batostr_(&t->d->addr), t->bt_fd);
+	warn("New SCO link: %s: %d", batostr_(&t->d->addr), t->bt_fd);
 
 	t->mtu_read = t->mtu_write = hci_sco_get_mtu(t->bt_fd);
 
@@ -1124,7 +1124,7 @@ static int transport_release_bt_sco(struct ba_transport *t) {
 	if (t->bt_fd == -1)
 		return 0;
 
-	debug("Closing SCO: %d", t->bt_fd);
+	warn("Closing SCO: %d", t->bt_fd);
 
 	shutdown(t->bt_fd, SHUT_RDWR);
 	close(t->bt_fd);
@@ -1148,7 +1148,7 @@ int ba_transport_release_pcm(struct ba_transport_pcm *pcm) {
 	 * going on, see the io_thread_read_pcm() function. */
 	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate);
 
-	debug("Closing PCM: %d", pcm->fd);
+	warn("Closing PCM: %d", pcm->fd);
 	close(pcm->fd);
 	pcm->fd = -1;
 	pcm->client = -1;
@@ -1175,7 +1175,7 @@ int ba_transport_pthread_create(
 	}
 
 	pthread_setname_np(t->thread, name);
-	debug("Created new thread [%s]: %s", name, ba_transport_type_to_string(t->type));
+	warn("Created new thread [%s]: %s", name, ba_transport_type_to_string(t->type));
 
 	return 0;
 }
@@ -1197,7 +1197,7 @@ void ba_transport_pthread_cleanup(struct ba_transport *t) {
 
 	/* XXX: If the order of the cleanup push is right, this function will
 	 *      indicate the end of the IO/RFCOMM thread. */
-	debug("Exiting IO thread: %s", ba_transport_type_to_string(t->type));
+	warn("Exiting IO thread: %s", ba_transport_type_to_string(t->type));
 
 	/* Remove reference which was taken by the io_thread_create(). */
 	ba_transport_unref(t);

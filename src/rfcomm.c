@@ -101,7 +101,7 @@ static int rfcomm_write_at(int fd, enum bt_at_type type, const char *command,
 	char msg[256];
 	size_t len;
 
-	debug("Sending AT message: %s: command:%s, value:%s",
+	warn("Sending AT message: %s: command:%s, value:%s",
 			at_type2str(type), command, value);
 
 	at_build(msg, type, command, value);
@@ -120,7 +120,7 @@ retry:
 /**
  * HFP set state wrapper for debugging purposes. */
 static void rfcomm_set_hfp_state(struct rfcomm_conn *c, enum hfp_slc_state state) {
-	debug("%s state transition: %d -> %d",
+	warn("%s state transition: %d -> %d",
 			ba_transport_type_to_string(c->t->type), c->state, state);
 	c->state = state;
 }
@@ -724,7 +724,7 @@ static int rfcomm_set_hfp_codec(struct rfcomm_conn *c, uint16_t codec) {
 	const int fd = t->bt_fd;
 	char tmp[16];
 
-	debug("%s setting codec: %s",
+	warn("%s setting codec: %s",
 			ba_transport_type_to_string(t->type),
 			codec == HFP_CODEC_MSBC ? "mSBC" : "CVSD");
 
@@ -793,7 +793,7 @@ static int rfcomm_notify_volume_change_mic(struct rfcomm_conn *c, bool force) {
 		return 0;
 
 	c->gain_mic = gain;
-	debug("Updating microphone gain: %d", gain);
+	warn("Updating microphone gain: %d", gain);
 
 	/* for AG return unsolicited response code */
 	if (t->type.profile & BA_TRANSPORT_PROFILE_MASK_AG) {
@@ -822,7 +822,7 @@ static int rfcomm_notify_volume_change_spk(struct rfcomm_conn *c, bool force) {
 		return 0;
 
 	c->gain_spk = gain;
-	debug("Updating speaker gain: %d", gain);
+	warn("Updating speaker gain: %d", gain);
 
 	/* for AG return unsolicited response code */
 	if (t->type.profile & BA_TRANSPORT_PROFILE_MASK_AG) {
@@ -860,7 +860,7 @@ void *rfcomm_thread(struct ba_transport *t) {
 		{ -1, POLLIN, 0 },
 	};
 
-	debug("Starting loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		/* During normal operation, RFCOMM should block indefinitely. However,
@@ -1018,7 +1018,7 @@ void *rfcomm_thread(struct ba_transport *t) {
 					conn.setup++;
 					break;
 				case HFP_SETUP_COMPLETE:
-					debug("Initial connection setup completed");
+					warn("Initial connection setup completed");
 				}
 
 			/* If HFP transport codec is already selected (e.g. device
@@ -1061,7 +1061,7 @@ process:
 		pfds[2].fd = t->rfcomm.handler_fd;
 		switch (poll(pfds, ARRAYSIZE(pfds), timeout)) {
 		case 0:
-			debug("RFCOMM poll timeout");
+			warn("RFCOMM poll timeout");
 			conn.idle = true;
 			continue;
 		case -1:
@@ -1188,7 +1188,7 @@ ioerror:
 		case ETIMEDOUT:
 		case EPIPE:
 			/* exit the thread upon socket disconnection */
-			debug("RFCOMM disconnected: %s", strerror(errno));
+			warn("RFCOMM disconnected: %s", strerror(errno));
 			goto fail;
 		default:
 			error("RFCOMM IO error: %s", strerror(errno));

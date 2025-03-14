@@ -103,7 +103,7 @@ ssize_t io_thread_read_pcm(struct ba_transport_pcm *pcm, int16_t *buffer, size_t
 		return ret / sizeof(int16_t);
 
 	if (ret == 0)
-		debug("PCM has been closed: %d", pcm->fd);
+		warn("PCM has been closed: %d", pcm->fd);
 	if (errno == EBADF)
 		ret = 0;
 	if (ret == 0)
@@ -118,7 +118,7 @@ ssize_t io_thread_read_pcm_flush(struct ba_transport_pcm *pcm) {
 	ssize_t rv = splice(pcm->fd, NULL, config.null_fd, NULL, 1024 * 32, SPLICE_F_NONBLOCK);
 	if (rv == -1 && errno == EAGAIN)
 		rv = 0;
-	debug("PCM read buffer flushed: %zd", rv >= 0 ? (int)(rv / sizeof(int16_t)) : rv);
+	warn("PCM read buffer flushed: %zd", rv >= 0 ? (int)(rv / sizeof(int16_t)) : rv);
 	return rv;
 }
 
@@ -151,7 +151,7 @@ ssize_t io_thread_write_pcm(struct ba_transport_pcm *pcm,
 			case EPIPE:
 				/* This errno value will be received only, when the SIGPIPE
 				 * signal is caught, blocked or ignored. */
-				debug("PCM has been closed: %d", pcm->fd);
+				warn("PCM has been closed: %d", pcm->fd);
 				ba_transport_release_pcm(pcm);
 				ret = 0;
 				/* fall-through */
@@ -273,7 +273,7 @@ repoll:
 	switch (samples = io_thread_read_pcm(&t->a2dp.pcm, buffer->tail, ffb_len_in(buffer))) {
 	case 0:
 		io->timeout = config.a2dp.keep_alive * 1000;
-		debug("Keep-alive polling: %d", io->timeout);
+		warn("Keep-alive polling: %d", io->timeout);
 		goto repoll;
 	case -1:
 		if (errno == EAGAIN)
@@ -337,7 +337,7 @@ repoll:
 
 	ssize_t len;
 	if ((len = read(fds[1].fd, buffer->tail, ffb_len_in(buffer))) == -1) {
-		debug("BT read error: %s", strerror(errno));
+		warn("BT read error: %s", strerror(errno));
 		goto repoll;
 	}
 
@@ -345,7 +345,7 @@ repoll:
 
 	/* it seems that zero is never returned... */
 	if (len == 0) {
-		debug("BT socket has been closed: %d", fds[1].fd);
+		warn("BT socket has been closed: %d", fds[1].fd);
 		/* Prevent sending the release request to the BlueZ. If the socket has
 		 * been closed, it means that BlueZ has already closed the connection. */
 		close(fds[1].fd);
@@ -439,7 +439,7 @@ static void *a2dp_sink_sbc(struct ba_transport *t) {
 	ba_transport_pthread_cleanup_unlock(t);
 	io.t_locked = false;
 
-	debug("Starting IO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting IO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		ssize_t len;
@@ -571,7 +571,7 @@ static void *a2dp_source_sbc(struct ba_transport *t) {
 	ba_transport_pthread_cleanup_unlock(t);
 	io.t_locked = false;
 
-	debug("Starting IO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting IO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		ssize_t samples;
@@ -623,7 +623,7 @@ static void *a2dp_source_sbc(struct ba_transport *t) {
 					&io.coutq.v[io.coutq.i], t->a2dp.bt_fd_coutq_init) == -1) {
 			if (errno == ECONNRESET || errno == ENOTCONN) {
 				/* exit thread upon BT socket disconnection */
-				debug("BT socket disconnected: %d", t->bt_fd);
+				warn("BT socket disconnected: %d", t->bt_fd);
 				goto fail;
 			}
 			error("BT socket write error: %s", strerror(errno));
@@ -734,7 +734,7 @@ static void *a2dp_sink_mpeg(struct ba_transport *t) {
 	ba_transport_pthread_cleanup_unlock(t);
 	io.t_locked = false;
 
-	debug("Starting IO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting IO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		ssize_t len;
@@ -782,7 +782,7 @@ decode:
 			break;
 		case MPG123_NEW_FORMAT:
 			mpg123_getformat(handle, &rate, &channels, &encoding);
-			debug("MPG123 new format detected: r:%ld, ch:%d, enc:%#x", rate, channels, encoding);
+			warn("MPG123 new format detected: r:%ld, ch:%d, enc:%#x", rate, channels, encoding);
 			break;
 		default:
 			error("MPG123 decoding error: %s", mpg123_strerror(handle));
@@ -970,7 +970,7 @@ static void *a2dp_source_mp3(struct ba_transport *t) {
 	ba_transport_pthread_cleanup_unlock(t);
 	io.t_locked = false;
 
-	debug("Starting IO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting IO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		ssize_t samples;
@@ -1016,7 +1016,7 @@ static void *a2dp_source_mp3(struct ba_transport *t) {
 								t->a2dp.bt_fd_coutq_init)) == -1) {
 					if (errno == ECONNRESET || errno == ENOTCONN) {
 						/* exit thread upon BT socket disconnection */
-						debug("BT socket disconnected: %d", t->bt_fd);
+						warn("BT socket disconnected: %d", t->bt_fd);
 						goto fail;
 					}
 					error("BT socket write error: %s", strerror(errno));
@@ -1031,7 +1031,7 @@ static void *a2dp_source_mp3(struct ba_transport *t) {
 					break;
 
 				/* move rest of data to the beginning of the payload */
-				debug("Payload fragmentation: extra %zd bytes", payload_len);
+				warn("Payload fragmentation: extra %zd bytes", payload_len);
 				memmove(rtp_payload, rtp_payload + ret, payload_len);
 
 			}
@@ -1136,7 +1136,7 @@ static void *a2dp_sink_aac(struct ba_transport *t) {
 	ba_transport_pthread_cleanup_unlock(t);
 	io.t_locked = false;
 
-	debug("Starting IO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting IO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		ssize_t len;
@@ -1182,7 +1182,7 @@ static void *a2dp_sink_aac(struct ba_transport *t) {
 		}
 
 		if (ffb_len_in(&latm) < rtp_latm_len) {
-			debug("Resizing LATM buffer: %zd -> %zd", latm.size, latm.size + t->mtu_read);
+			warn("Resizing LATM buffer: %zd -> %zd", latm.size, latm.size + t->mtu_read);
 			size_t prev_len = ffb_len_out(&latm);
 			ffb_init(&latm, latm.size + t->mtu_read);
 			ffb_seek(&latm, prev_len);
@@ -1192,7 +1192,7 @@ static void *a2dp_sink_aac(struct ba_transport *t) {
 		ffb_seek(&latm, rtp_latm_len);
 
 		if (markbit_quirk != 1 && !rtp_header->markbit) {
-			debug("Fragmented RTP packet [%u]: LATM len: %zd", seq_number, rtp_latm_len);
+			warn("Fragmented RTP packet [%u]: LATM len: %zd", seq_number, rtp_latm_len);
 			continue;
 		}
 
@@ -1372,7 +1372,7 @@ static void *a2dp_source_aac(struct ba_transport *t) {
 	ba_transport_pthread_cleanup_unlock(t);
 	io.t_locked = false;
 
-	debug("Starting IO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting IO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		ssize_t samples;
@@ -1411,7 +1411,7 @@ static void *a2dp_source_aac(struct ba_transport *t) {
 									&io.coutq.v[io.coutq.i], t->a2dp.bt_fd_coutq_init)) == -1) {
 						if (errno == ECONNRESET || errno == ENOTCONN) {
 							/* exit thread upon BT socket disconnection */
-							debug("BT socket disconnected: %d", t->bt_fd);
+							warn("BT socket disconnected: %d", t->bt_fd);
 							goto fail;
 						}
 						error("BT socket write error: %s", strerror(errno));
@@ -1426,7 +1426,7 @@ static void *a2dp_source_aac(struct ba_transport *t) {
 						break;
 
 					/* move rest of data to the beginning of the payload */
-					debug("Payload fragmentation: extra %zd bytes", payload_len);
+					warn("Payload fragmentation: extra %zd bytes", payload_len);
 					memmove(rtp_payload, rtp_payload + ret, payload_len);
 
 				}
@@ -1505,7 +1505,7 @@ static void *a2dp_source_aptx(struct ba_transport *t) {
 	ba_transport_pthread_cleanup_unlock(t);
 	io.t_locked = false;
 
-	debug("Starting IO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting IO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		ssize_t samples;
@@ -1550,7 +1550,7 @@ static void *a2dp_source_aptx(struct ba_transport *t) {
 						&io.coutq.v[io.coutq.i], t->a2dp.bt_fd_coutq_init) == -1) {
 				if (errno == ECONNRESET || errno == ENOTCONN) {
 					/* exit thread upon BT socket disconnection */
-					debug("BT socket disconnected: %d", t->bt_fd);
+					warn("BT socket disconnected: %d", t->bt_fd);
 					goto fail;
 				}
 				error("BT socket write error: %s", strerror(errno));
@@ -1636,7 +1636,7 @@ static void *a2dp_source_aptx_hd(struct ba_transport *t) {
 	ba_transport_pthread_cleanup_unlock(t);
 	io.t_locked = false;
 
-	debug("Starting IO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting IO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		ssize_t samples;
@@ -1692,7 +1692,7 @@ static void *a2dp_source_aptx_hd(struct ba_transport *t) {
 						&io.coutq.v[io.coutq.i], t->a2dp.bt_fd_coutq_init) == -1) {
 				if (errno == ECONNRESET || errno == ENOTCONN) {
 					/* exit thread upon BT socket disconnection */
-					debug("BT socket disconnected: %d", t->bt_fd);
+					warn("BT socket disconnected: %d", t->bt_fd);
 					goto fail;
 				}
 				error("BT socket write error: %s", strerror(errno));
@@ -1808,7 +1808,7 @@ static void *a2dp_source_ldac(struct ba_transport *t) {
 	ba_transport_pthread_cleanup_unlock(t);
 	io.t_locked = false;
 
-	debug("Starting IO loop: %s", ba_transport_type_to_string(t->type));
+	warn("Starting IO loop: %s", ba_transport_type_to_string(t->type));
 	for (;;) {
 
 		ssize_t samples;
@@ -1844,7 +1844,7 @@ static void *a2dp_source_ldac(struct ba_transport *t) {
 						&io.coutq.v[0], t->a2dp.bt_fd_coutq_init) == -1) {
 				if (errno == ECONNRESET || errno == ENOTCONN) {
 					/* exit thread upon BT socket disconnection */
-					debug("BT socket disconnected: %d", t->bt_fd);
+					warn("BT socket disconnected: %d", t->bt_fd);
 					goto fail;
 				}
 				error("BT socket write error: %s", strerror(errno));
@@ -1912,7 +1912,7 @@ static void *a2dp_sink_dump(struct ba_transport *t) {
 			*ptr = '-';
 	}
 
-	debug("Opening BT dump file: %s", fname);
+	warn("Opening BT dump file: %s", fname);
 	if ((f = fopen(fname, "wb")) == NULL) {
 		error("Couldn't create dump file: %s", strerror(errno));
 		goto fail_open;
@@ -1933,7 +1933,7 @@ static void *a2dp_sink_dump(struct ba_transport *t) {
 				error("BT poll and read error: %s", strerror(errno));
 			goto fail;
 		}
-		debug("BT read: %zd", len);
+		warn("BT read: %zd", len);
 		fwrite(bt.data, 1, len, f);
 	}
 
