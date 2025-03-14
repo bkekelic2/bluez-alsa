@@ -612,13 +612,14 @@ static int rfcomm_handler_xapl_resp_cb(struct rfcomm_conn *c, const struct bt_at
 	return 0;
 }
 
-static int rfcomm_handler_cnum_resp_cb(struct ba_rfcomm *r, const struct bt_at *at) {
+static int rfcomm_handler_cnum_resp_cb(struct rfcomm_conn *c, const struct bt_at *at) {
     const char *number = "+33785812510"; // Replace with the desired number
     char response[64];
+    const int fd = c->t->bt_fd;
 
     snprintf(response, sizeof(response), "+CNUM: ,\"%s\",145,,4", number);
     
-    if (rfcomm_write_at(r->fd, AT_TYPE_RESP, NULL, response) == -1)
+    if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, response) == -1)
         return -1;
 
     return 0;
