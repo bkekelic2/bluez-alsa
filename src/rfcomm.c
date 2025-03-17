@@ -621,6 +621,31 @@ static int rfcomm_handler_cnum_resp_cb(struct rfcomm_conn *c, const struct bt_at
     
     if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, response) == -1)
         return -1;
+	
+	// Send the OK response
+	if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "OK") == -1)
+		return -1;
+
+	// Wait 1 second and send +CIEV: 3,2
+    sleep(1);
+    if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "+CIEV: 3,2") == -1)
+        return -1;
+
+    return 0;
+}
+
+static int rfcomm_handler_clcc_resp_cb(struct rfcomm_conn *c, const struct bt_at *at) {
+    const int fd = c->t->bt_fd;
+    char response[64];
+
+    // Send +CLCC response
+    snprintf(response, sizeof(response), "+CLCC: 1,0,2,0,0,\"10000000\",129");
+    if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, response) == -1)
+        return -1;
+
+    // Send OK response
+    if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "OK") == -1)
+        return -1;
 
     return 0;
 }
@@ -673,6 +698,9 @@ static const struct rfcomm_handler rfcomm_handler_xapl_resp = {
 	AT_TYPE_RESP, "+XAPL", rfcomm_handler_xapl_resp_cb };
 static const struct rfcomm_handler rfcomm_handler_cnum_resp = {
 	AT_TYPE_CMD, "+CNUM", rfcomm_handler_cnum_resp_cb };
+static const struct rfcomm_handler rfcomm_handler_clcc_resp = {
+	AT_TYPE_CMD, "+CLCC", rfcomm_handler_clcc_resp_cb
+};
 
 /**
  * Get callback (if available) for given AT message. */
@@ -700,6 +728,7 @@ static rfcomm_callback *rfcomm_get_callback(const struct bt_at *at) {
 		&rfcomm_handler_xapl_set,
 		&rfcomm_handler_xapl_resp,
 		&rfcomm_handler_cnum_resp,
+		&rfcomm_handler_clcc_resp,
 	};
 
 	size_t i;
