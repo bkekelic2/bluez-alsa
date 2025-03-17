@@ -177,7 +177,7 @@ static int rfcomm_handler_cind_get_cb(struct rfcomm_conn *c, const struct bt_at 
 	const int battchg = config.battery.available ? (config.battery.level + 1) / 17 : 5;
 	char tmp[32];
 
-	sprintf(tmp, "0,0,0,0,0,0,%d", battchg);
+	sprintf(tmp, "1,0,0,0,5,0,%d", battchg);
 	if (rfcomm_write_at(fd, AT_TYPE_RESP, "+CIND", tmp) == -1)
 		return -1;
 	if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "OK") == -1)
