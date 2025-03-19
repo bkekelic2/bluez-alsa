@@ -651,6 +651,63 @@ static int rfcomm_handler_clcc_resp_cb(struct rfcomm_conn *c, const struct bt_at
     return 0;
 }
 
+ static int rfcomm_handler_bind_set_cb(struct rfcomm_conn *c, const struct bt_at *at) {
+	(void)at;
+
+	const char *resp = "OK";
+	const int fd = c->t->bt_fd;
+
+	if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, resp) == -1)
+		return -1;
+
+	return 0;
+}
+
+static int rfcomm_handler_bind_resp_get_cb(struct rfcomm_conn *c, const struct bt_at *at) {
+	(void)at;
+
+	const char *resp = "(1,2)";
+	const int fd = c->t->bt_fd;
+
+	if (rfcomm_write_at(fd, AT_TYPE_RESP, "+BIND", resp) == -1)
+		return -1;
+
+	if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "OK") == -1)
+		return -1;
+
+	return 0;
+}
+
+
+/**
+ * GET: Standard indicator update AT command */
+static int rfcomm_handler_bind_get_cb(struct rfcomm_conn *c, const struct bt_at *at) {
+	(void)at;
+
+	const int fd = c->t->bt_fd;
+
+	if (rfcomm_write_at(fd, AT_TYPE_RESP, "+BIND", "2,1") == -1)
+		return -1;
+	if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "OK") == -1)
+		return -1;
+
+	return 0;
+}
+
+/**
+ * SET: Standard event reporting activation/deactivation AT command */
+ static int rfcomm_handler_biev_set_cb(struct rfcomm_conn *c, const struct bt_at *at) {
+	(void)at;
+
+	const char *resp = "OK";
+	const int fd = c->t->bt_fd;
+
+	if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, resp) == -1)
+		return -1;
+
+	return 0;
+}
+
 static const struct rfcomm_handler rfcomm_handler_resp_ok = {
 	AT_TYPE_RESP, "", rfcomm_handler_resp_ok_cb };
 static const struct rfcomm_handler rfcomm_handler_cind_test = {
@@ -700,9 +757,16 @@ static const struct rfcomm_handler rfcomm_handler_xapl_resp = {
 static const struct rfcomm_handler rfcomm_handler_cnum_resp = {
 	AT_TYPE_CMD, "+CNUM", rfcomm_handler_cnum_resp_cb };
 static const struct rfcomm_handler rfcomm_handler_clcc_resp = {
-	AT_TYPE_CMD, "+CLCC", rfcomm_handler_clcc_resp_cb
-};
-
+	AT_TYPE_CMD, "+CLCC", rfcomm_handler_clcc_resp_cb };
+static const struct rfcomm_handler rfcomm_handler_bind_set = {
+	AT_TYPE_CMD_SET, "+BIND", rfcomm_handler_bind_set_cb };
+static const struct rfcomm_handler rfcomm_handler_bind_resp_get = {
+	AT_TYPE_RESP, "+BIND", rfcomm_handler_bind_resp_get_cb };
+static const struct rfcomm_handler rfcomm_handler_bind_get = {
+	AT_TYPE_CMD_GET, "+BIND", rfcomm_handler_bind_get_cb };
+static const struct rfcomm_handler rfcomm_handler_biev_set = {
+	AT_TYPE_CMD_SET, "+BIEV", rfcomm_handler_biev_set_cb };
+	
 /**
  * Get callback (if available) for given AT message. */
 static rfcomm_callback *rfcomm_get_callback(const struct bt_at *at) {
@@ -730,6 +794,10 @@ static rfcomm_callback *rfcomm_get_callback(const struct bt_at *at) {
 		&rfcomm_handler_xapl_resp,
 		&rfcomm_handler_cnum_resp,
 		&rfcomm_handler_clcc_resp,
+		&rfcomm_handler_bind_set,
+		&rfcomm_handler_bind_resp_get,
+		&rfcomm_handler_bind_get,
+		&rfcomm_handler_biev_set,
 	};
 
 	size_t i;
