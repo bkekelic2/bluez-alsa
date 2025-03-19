@@ -761,7 +761,7 @@ static const struct rfcomm_handler rfcomm_handler_clcc_resp = {
 static const struct rfcomm_handler rfcomm_handler_bind_set = {
 	AT_TYPE_CMD_SET, "+BIND", rfcomm_handler_bind_set_cb };
 static const struct rfcomm_handler rfcomm_handler_bind_resp_get = {
-	AT_TYPE_RESP, "+BIND", rfcomm_handler_bind_resp_get_cb };
+	AT_TYPE_CMD_TEST, "+BIND", rfcomm_handler_bind_resp_get_cb };
 static const struct rfcomm_handler rfcomm_handler_bind_get = {
 	AT_TYPE_CMD_GET, "+BIND", rfcomm_handler_bind_get_cb };
 static const struct rfcomm_handler rfcomm_handler_biev_set = {
