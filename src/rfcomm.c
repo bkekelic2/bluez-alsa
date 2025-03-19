@@ -307,7 +307,8 @@ static int rfcomm_handler_brsf_set_cb(struct rfcomm_conn *c, const struct bt_at 
 	if (!(t->rfcomm.hfp_features & HFP_HF_FEAT_CODEC))
 		ba_transport_update_codec(t_sco, HFP_CODEC_CVSD);
 
-	sprintf(tmp, "%u", ba_adapter_get_hfp_features_ag(t->d->a));
+	// sprintf(tmp, "%u", ba_adapter_get_hfp_features_ag(t->d->a));
+	sprintf(tmp, "%u", 3943);
 	if (rfcomm_write_at(fd, AT_TYPE_RESP, "+BRSF", tmp) == -1)
 		return -1;
 	if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "OK") == -1)
