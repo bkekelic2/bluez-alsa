@@ -88,7 +88,7 @@ static int set_hw_params(snd_pcm_t *pcm, snd_pcm_format_t format, int channels,
 		goto fail;
 	}
 
-	warning("Selected PCM parameters: buffer time: %u us, period time: %u us",
+	warn("Selected PCM parameters: buffer time: %u us, period time: %u us",
 			*buffer_time, *period_time);
 	return 0;
 
@@ -635,7 +635,7 @@ CK_START_TEST(test_playback_hw_set_free) {
 		/* acquire Bluetooth transport */
 		if ((set_hw_param_ret = set_hw_params(pcm, pcm_format, pcm_channels,
 					pcm_sampling, &buffer_time, &period_time)) == -EBUSY) {
-			warning("Retrying snd_pcm_hw_params_set...");
+			warn("Retrying snd_pcm_hw_params_set...");
 			/* do not treat busy as an error */
 			i--;
 			continue;
@@ -910,7 +910,7 @@ retry:
 	/* immediately try to write one period of data, however, at this point
 	 * we might face PCM in the under-run state; do not treat it as an error */
 	if ((frames = snd_pcm_writei(pcm, test_sine_s16le(period_size), period_size)) == -EPIPE) {
-		warning("Retrying playback reset test: Device in the under-run state");
+		warn("Retrying playback reset test: Device in the under-run state");
 		ck_assert_int_eq(snd_pcm_prepare(pcm), 0);
 		goto retry;
 	}

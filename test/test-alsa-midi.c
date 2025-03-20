@@ -83,7 +83,7 @@ CK_START_TEST(test_port) {
 		snd_seq_port_info_set_client(pinfo, snd_seq_client_info_get_client(cinfo));
 		snd_seq_port_info_set_port(pinfo, -1);
 		while (snd_seq_query_next_port(seq, pinfo) == 0) {
-			warning("%d:%d - %s", snd_seq_port_info_get_client(pinfo),
+			warn("%d:%d - %s", snd_seq_port_info_get_client(pinfo),
 					snd_seq_port_info_get_port(pinfo), snd_seq_port_info_get_name(pinfo));
 			ba_port_found = true;
 		}

@@ -254,7 +254,7 @@ void ba_transport_pcm_thread_cleanup(struct ba_transport_pcm *pcm) {
 	 *      indicate the end of the transport IO thread. */
 	char name[32];
 	pthread_getname_np(pcm->tid, name, sizeof(name));
-	warning("Exiting IO thread [%s]: %s", name, ba_transport_debug_name(t));
+	warn("Exiting IO thread [%s]: %s", name, ba_transport_debug_name(t));
 #endif
 
 	/* Remove reference which was taken by the ba_transport_pcm_start(). */
@@ -291,7 +291,7 @@ int ba_transport_pcm_bt_acquire(struct ba_transport_pcm *pcm) {
 		goto fail;
 	}
 
-	warning("Created BT socket duplicate: [%d]: %d", bt_fd, pcm->fd_bt);
+	warn("Created BT socket duplicate: [%d]: %d", bt_fd, pcm->fd_bt);
 	ret = 0;
 
 fail:
@@ -304,7 +304,7 @@ int ba_transport_pcm_bt_release(struct ba_transport_pcm *pcm) {
 	if (pcm->fd_bt != -1) {
 #if DEBUG
 		pthread_mutex_lock(&pcm->t->bt_fd_mtx);
-		warning("Closing BT socket duplicate [%d]: %d", pcm->t->bt_fd, pcm->fd_bt);
+		warn("Closing BT socket duplicate [%d]: %d", pcm->t->bt_fd, pcm->fd_bt);
 		pthread_mutex_unlock(&pcm->t->bt_fd_mtx);
 #endif
 		close(pcm->fd_bt);
@@ -370,7 +370,7 @@ int ba_transport_pcm_start(
 	pthread_sigmask(SIG_SETMASK, &oldset, NULL);
 
 	pthread_setname_np(pcm->tid, name);
-	warning("Created new IO thread [%s]: %s", name, ba_transport_debug_name(t));
+	warn("Created new IO thread [%s]: %s", name, ba_transport_debug_name(t));
 
 fail:
 	pthread_mutex_unlock(&pcm->state_mtx);
@@ -450,7 +450,7 @@ int ba_transport_pcm_release(struct ba_transport_pcm *pcm) {
 #endif
 
 	if (pcm->fd != -1) {
-		warning("Closing PCM: %d", pcm->fd);
+		warn("Closing PCM: %d", pcm->fd);
 		close(pcm->fd);
 		pcm->fd = -1;
 	}
@@ -467,7 +467,7 @@ int ba_transport_pcm_release(struct ba_transport_pcm *pcm) {
 int ba_transport_pcm_pause(struct ba_transport_pcm *pcm) {
 
 	pthread_mutex_lock(&pcm->mutex);
-	warning("PCM pause: %d", pcm->fd);
+	warn("PCM pause: %d", pcm->fd);
 	pcm->paused = true;
 	pthread_mutex_unlock(&pcm->mutex);
 
@@ -477,7 +477,7 @@ int ba_transport_pcm_pause(struct ba_transport_pcm *pcm) {
 int ba_transport_pcm_resume(struct ba_transport_pcm *pcm) {
 
 	pthread_mutex_lock(&pcm->mutex);
-	warning("PCM resume: %d", pcm->fd);
+	warn("PCM resume: %d", pcm->fd);
 	pcm->paused = false;
 	pthread_mutex_unlock(&pcm->mutex);
 
@@ -493,7 +493,7 @@ int ba_transport_pcm_drain(struct ba_transport_pcm *pcm) {
 		return errno = ESRCH, -1;
 	}
 
-	warning("PCM drain: %d", pcm->fd);
+	warn("PCM drain: %d", pcm->fd);
 
 	pcm->synced = false;
 	ba_transport_pcm_signal_send(pcm, BA_TRANSPORT_PCM_SIGNAL_SYNC);
@@ -513,7 +513,7 @@ int ba_transport_pcm_drain(struct ba_transport_pcm *pcm) {
 	 * is not implemented - it requires a little bit of refactoring. */
 	usleep(200000);
 
-	warning("PCM drained");
+	warn("PCM drained");
 	return 0;
 }
 
@@ -521,7 +521,7 @@ int ba_transport_pcm_drop(struct ba_transport_pcm *pcm) {
 
 #if DEBUG
 	pthread_mutex_lock(&pcm->mutex);
-	warning("PCM drop: %d", pcm->fd);
+	warn("PCM drop: %d", pcm->fd);
 	pthread_mutex_unlock(&pcm->mutex);
 #endif
 

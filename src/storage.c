@@ -87,7 +87,7 @@ static void storage_free(struct storage *st) {
  * @return On success this function returns 0. Otherwise -1 is returned. */
 int storage_init(const char *root) {
 
-	warning("Initializing persistent storage: %s", root);
+	warn("Initializing persistent storage: %s", root);
 	strncpy(storage_root_dir, root, sizeof(storage_root_dir) - 1);
 	if (mkdir(storage_root_dir, S_IRWXU) == -1 && errno != EEXIST)
 		warn("Couldn't create storage directory: %s", strerror(errno));
@@ -120,7 +120,7 @@ int storage_device_load(const struct ba_device *d) {
 
 	pthread_mutex_lock(&storage_mutex);
 
-	warning("Loading storage: %s", path);
+	warn("Loading storage: %s", path);
 
 	struct storage *st;
 	if ((st = storage_new(&d->addr)) == NULL)
@@ -157,7 +157,7 @@ int storage_device_save(const struct ba_device *d) {
 	if ((st = storage_lookup(&d->addr)) == NULL)
 		goto final;
 
-	warning("Saving storage: %s", path);
+	warn("Saving storage: %s", path);
 
 	GError *err = NULL;
 	if (!g_key_file_save_to_file(st->keyfile, path, &err)) {

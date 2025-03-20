@@ -355,7 +355,7 @@ void bluealsa_dbus_register(void) {
 		.get_property = bluealsa_manager_get_property,
 	};
 
-	warning("Registering BlueALSA D-Bus manager: %s", bluealsa_dbus_manager_path);
+	warn("Registering BlueALSA D-Bus manager: %s", bluealsa_dbus_manager_path);
 
 	OrgBluealsaManager1Skeleton *ifs_manager;
 	ifs_manager = org_bluealsa_manager1_skeleton_new(&vtable, NULL, NULL);
@@ -999,7 +999,7 @@ static bool bluealsa_pcm_set_property(const char *property, GVariant *value,
 		ba_transport_pcm_volume_set(&pcm->volume[1], &ch2_level, &ch2_muted, NULL);
 		pthread_mutex_unlock(&pcm->mutex);
 
-		warning("Setting volume: %u [%.2f dB] %c%c %u [%.2f dB]",
+		warn("Setting volume: %u [%.2f dB] %c%c %u [%.2f dB]",
 				ch1 & 0x7F, 0.01 * ch1_level, ch1_muted ? 'x' : '<',
 				ch2_muted ? 'x' : '>', ch2 & 0x7F, 0.01 * ch2_level);
 

@@ -342,12 +342,12 @@ static int a2dp_aptx_configuration_check(
 	a2dp_aptx_caps_intersect(&conf_v, &sep->config.capabilities);
 
 	if (a2dp_bit_mapping_lookup(a2dp_aptx_samplings, conf_v.sampling_freq) == 0) {
-		warning("apt-X: Invalid sampling frequency: %#x", conf->sampling_freq);
+		warn("apt-X: Invalid sampling frequency: %#x", conf->sampling_freq);
 		return A2DP_CHECK_ERR_SAMPLING;
 	}
 
 	if (a2dp_bit_mapping_lookup(a2dp_aptx_channels, conf_v.channel_mode) == 0) {
-		warning("apt-X: Invalid channel mode: %#x", conf->channel_mode);
+		warn("apt-X: Invalid channel mode: %#x", conf->channel_mode);
 		return A2DP_CHECK_ERR_CHANNEL_MODE;
 	}
 

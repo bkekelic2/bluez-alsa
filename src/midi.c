@@ -215,7 +215,7 @@ int midi_transport_alsa_seq_create(struct ba_transport *t) {
 		goto fail;
 	}
 
-	warning("Created new ALSA sequencer port: %d:%d",
+	warn("Created new ALSA sequencer port: %d:%d",
 			snd_seq_client_id(seq), rv);
 
 	t->midi.seq = seq;
@@ -235,7 +235,7 @@ int midi_transport_alsa_seq_delete(struct ba_transport *t) {
 	if (t->midi.seq == NULL)
 		return 0;
 
-	warning("Releasing ALSA sequencer port: %d:%d",
+	warn("Releasing ALSA sequencer port: %d:%d",
 			snd_seq_client_id(t->midi.seq), t->midi.seq_port);
 
 	snd_seq_free_queue(t->midi.seq, t->midi.seq_queue);
@@ -253,7 +253,7 @@ int midi_transport_start_watch_alsa_seq(struct ba_transport *t) {
 	struct pollfd pfd;
 	snd_seq_poll_descriptors(t->midi.seq, &pfd, 1, POLLIN);
 
-	warning("Starting ALSA sequencer IO watch: %d", pfd.fd);
+	warn("Starting ALSA sequencer IO watch: %d", pfd.fd);
 
 	GIOChannel *ch = g_io_channel_unix_new(pfd.fd);
 	g_io_channel_set_encoding(ch, NULL, NULL);
@@ -270,7 +270,7 @@ int midi_transport_start_watch_alsa_seq(struct ba_transport *t) {
 
 int midi_transport_start_watch_ble_midi(struct ba_transport *t) {
 
-	warning("Starting BLE-MIDI IO watch: %d", t->midi.ble_fd_write);
+	warn("Starting BLE-MIDI IO watch: %d", t->midi.ble_fd_write);
 
 	GIOChannel *ch = g_io_channel_unix_new(t->midi.ble_fd_write);
 	g_io_channel_set_close_on_unref(ch, TRUE);

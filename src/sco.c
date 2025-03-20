@@ -52,7 +52,7 @@ struct sco_data {
 };
 
 static void sco_dispatcher_cleanup(struct sco_data *data) {
-	warning("SCO dispatcher cleanup: %s", data->a->hci.name);
+	warn("SCO dispatcher cleanup: %s", data->a->hci.name);
 	if (data->pfd.fd != -1)
 		close(data->pfd.fd);
 }
@@ -88,7 +88,7 @@ static void *sco_dispatcher_thread(struct ba_adapter *a) {
 		goto fail;
 	}
 
-	warning("Starting SCO dispatcher loop: %s", a->hci.name);
+	warn("Starting SCO dispatcher loop: %s", a->hci.name);
 	for (;;) {
 
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -115,7 +115,7 @@ static void *sco_dispatcher_thread(struct ba_adapter *a) {
 		}
 
 		ba2str(&addr.sco_bdaddr, addrstr);
-		warning("New incoming SCO link: %s: %d", addrstr, fd);
+		warn("New incoming SCO link: %s: %d", addrstr, fd);
 
 		if ((d = ba_device_lookup(data.a, &addr.sco_bdaddr)) == NULL) {
 			error("Couldn't lookup device: %s", addrstr);
@@ -184,15 +184,15 @@ int sco_setup_connection_dispatcher(struct ba_adapter *a) {
 		int dd;
 		uint8_t routing, clock, frame, sync, clk;
 
-		warning("Checking Broadcom internal SCO routing");
+		warn("Checking Broadcom internal SCO routing");
 
 		if ((dd = hci_open_dev(a->hci.dev_id)) == -1 ||
 				hci_bcm_read_sco_pcm_params(dd, &routing, &clock, &frame, &sync, &clk, 1000) == -1)
 			error("Couldn't read SCO routing params: %s", strerror(errno));
 		else {
-			warning("Current SCO interface setup: %u %u %u %u %u", routing, clock, frame, sync, clk);
+			warn("Current SCO interface setup: %u %u %u %u %u", routing, clock, frame, sync, clk);
 			if (routing != BT_BCM_PARAM_ROUTING_TRANSPORT) {
-				warning("Setting SCO routing via transport interface");
+				warn("Setting SCO routing via transport interface");
 				if (hci_bcm_write_sco_pcm_params(dd, BT_BCM_PARAM_ROUTING_TRANSPORT,
 						clock, frame, sync, clk, 1000) == -1)
 				error("Couldn't write SCO routing params: %s", strerror(errno));
@@ -218,7 +218,7 @@ int sco_setup_connection_dispatcher(struct ba_adapter *a) {
 	}
 
 	pthread_setname_np(a->sco_dispatcher, "ba-sco-dispatch");
-	warning("Created SCO dispatcher [%s]: %s", "ba-sco-dispatch", a->hci.name);
+	warn("Created SCO dispatcher [%s]: %s", "ba-sco-dispatch", a->hci.name);
 
 	return 0;
 }
@@ -287,7 +287,7 @@ void sco_transport_init(struct ba_transport *t) {
 		break;
 #endif
 	default:
-		warning("Unsupported SCO codec: %#x", codec_id);
+		warn("Unsupported SCO codec: %#x", codec_id);
 		g_assert_not_reached();
 	}
 

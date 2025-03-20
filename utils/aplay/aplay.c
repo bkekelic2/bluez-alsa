@@ -311,7 +311,7 @@ static int pause_device_player(const struct ba_pcm *ba_pcm) {
 		goto fail;
 	}
 
-	warning("Requested playback pause");
+	warn("Requested playback pause");
 	goto final;
 
 fail:
@@ -336,7 +336,7 @@ static int io_worker_mixer_open(
 	if (dev_name == NULL)
 		return 0;
 
-	warning("Opening ALSA mixer: name=%s elem=%s index=%u",
+	warn("Opening ALSA mixer: name=%s elem=%s index=%u",
 			dev_name, elem_name, elem_idx);
 
 	snd_mixer_elem_t *elem;
@@ -504,7 +504,7 @@ static int io_worker_mixer_volume_sync_setup(
 	if (elem == NULL)
 		return 0;
 
-	warning("Setting up ALSA mixer volume synchronization");
+	warn("Setting up ALSA mixer volume synchronization");
 
 	snd_mixer_elem_set_callback(elem, io_worker_mixer_elem_callback);
 	snd_mixer_elem_set_callback_private(elem, worker);
@@ -533,7 +533,7 @@ static void io_worker_routine_exit(struct io_worker *worker) {
 		worker->snd_mixer_elem = NULL;
 		worker->snd_mixer = NULL;
 	}
-	warning("Exiting IO worker %s", worker->addr);
+	warn("Exiting IO worker %s", worker->addr);
 }
 
 static void *io_worker_routine(struct io_worker *w) {
@@ -561,7 +561,7 @@ static void *io_worker_routine(struct io_worker *w) {
 	/* initialize the PCM soft_volume setting */
 	if (volume_type != VOL_TYPE_AUTO) {
 		bool softvol = (volume_type == VOL_TYPE_SOFTWARE);
-		warning("Setting BlueALSA source PCM volume mode: %s: %s",
+		warn("Setting BlueALSA source PCM volume mode: %s: %s",
 				w->ba_pcm.pcm_path, softvol ? "software" : "pass-through");
 		if (softvol != w->ba_pcm.soft_volume) {
 			w->ba_pcm.soft_volume = softvol;
@@ -574,7 +574,7 @@ static void *io_worker_routine(struct io_worker *w) {
 		}
 	}
 
-	warning("Opening BlueALSA source PCM: %s", w->ba_pcm.pcm_path);
+	warn("Opening BlueALSA source PCM: %s", w->ba_pcm.pcm_path);
 	if (!ba_dbus_pcm_open(&dbus_ctx, w->ba_pcm.pcm_path,
 				&w->ba_pcm_fd, &w->ba_pcm_ctrl_fd, &err)) {
 		error("Couldn't open BlueALSA source PCM: %s", err.message);
@@ -600,7 +600,7 @@ static void *io_worker_routine(struct io_worker *w) {
 
 	int timeout = -1;
 
-	warning("Starting IO loop");
+	warn("Starting IO loop");
 	for (;;) {
 
 		if (single_playback_mutex_locked) {
@@ -640,7 +640,7 @@ static void *io_worker_routine(struct io_worker *w) {
 			error("IO loop poll error: %s", strerror(errno));
 			goto fail;
 		case 0:
-			warning("BT device marked as inactive: %s", w->addr);
+			warn("BT device marked as inactive: %s", w->addr);
 			pause_retry_pcm_samples = pcm_1s_samples;
 			pause_retries = 0;
 			w->active = false;
@@ -673,7 +673,7 @@ static void *io_worker_routine(struct io_worker *w) {
 		}
 		else if (fds[1].revents & POLLHUP) {
 			/* source PCM FIFO has been terminated on the writing side */
-			warning("BlueALSA source PCM disconnected: %s", w->ba_pcm.pcm_path);
+			warn("BlueALSA source PCM disconnected: %s", w->ba_pcm.pcm_path);
 			break;
 		}
 		else if (fds[1].revents)
@@ -729,7 +729,7 @@ static void *io_worker_routine(struct io_worker *w) {
 					continue;
 			}
 
-			warning("Opening ALSA playback PCM: name=%s channels=%u rate=%u",
+			warn("Opening ALSA playback PCM: name=%s channels=%u rate=%u",
 					pcm_device, w->ba_pcm.channels, w->ba_pcm.sampling);
 			if (alsa_pcm_open(&w->snd_pcm, pcm_device, pcm_format, w->ba_pcm.channels,
 						w->ba_pcm.sampling, &buffer_time, &period_time, &tmp) != 0) {
@@ -752,7 +752,7 @@ static void *io_worker_routine(struct io_worker *w) {
 			pcm_open_retries = 0;
 
 			if (verbose >= 2) {
-				warning("Used configuration for %s:\n"
+				warn("Used configuration for %s:\n"
 						"  ALSA PCM buffer time: %u us (%zu bytes)\n"
 						"  ALSA PCM period time: %u us (%zu bytes)\n"
 						"  PCM format: %s\n"
@@ -797,7 +797,7 @@ retry_alsa_write:
 			case EINTR:
 				goto retry_alsa_write;
 			case EPIPE:
-				warning("ALSA playback PCM underrun");
+				warn("ALSA playback PCM underrun");
 				snd_pcm_prepare(w->snd_pcm);
 				goto retry_alsa_write;
 			default:
@@ -901,7 +901,7 @@ static struct io_worker *supervise_io_worker_start(const struct ba_pcm *ba_pcm) 
 	worker->mixer_has_mute_switch = false;
 	worker->active = false;
 
-	warning("Creating IO worker %s", worker->addr);
+	warn("Creating IO worker %s", worker->addr);
 	if ((errno = pthread_create(&worker->thread, NULL,
 					PTHREAD_FUNC(io_worker_routine), worker)) != 0) {
 		error("Couldn't create IO worker %s: %s", worker->addr, strerror(errno));
@@ -936,7 +936,7 @@ static struct io_worker *supervise_io_worker(const struct ba_pcm *ba_pcm) {
 	/* check whether SCO has selected codec */
 	if (ba_pcm->transport & BA_PCM_TRANSPORT_MASK_SCO &&
 			ba_pcm->sampling == 0) {
-		warning("Skipping SCO with codec not selected");
+		warn("Skipping SCO with codec not selected");
 		goto stop;
 	}
 
@@ -1267,7 +1267,7 @@ int main(int argc, char *argv[]) {
 					mixer_elem_name, mixer_elem_index);
 		}
 
-		warning("Selected configuration:\n"
+		warn("Selected configuration:\n"
 				"  BlueALSA service: %s\n"
 				"  ALSA PCM device: %s\n"
 				"  ALSA PCM buffer time: %u us\n"
@@ -1317,7 +1317,7 @@ int main(int argc, char *argv[]) {
 	sigaction(SIGTERM, &sigact, NULL);
 	sigaction(SIGINT, &sigact, NULL);
 
-	warning("Starting main loop");
+	warn("Starting main loop");
 	for (;;) {
 
 		struct pollfd fds[10] = {

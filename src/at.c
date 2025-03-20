@@ -176,7 +176,7 @@ char *at_parse(const char *str, struct bt_at *at) {
 		command++;
 	}
 
-	warning("AT message: %s: command:%s, value:%s", at_type2str(at->type), at->command, at->value);
+	warn("AT message: %s: command:%s, value:%s", at_type2str(at->type), at->command, at->value);
 	return (char *)&feed[1];
 }
 

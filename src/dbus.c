@@ -44,7 +44,7 @@ static bool g_dbus_dispatch_method_call(const GDBusMethodCallDispatcher *dispatc
 		if (dispatcher->method != NULL && strcmp(dispatcher->method, method) != 0)
 			continue;
 
-		warning("Called: %s.%s() on %s", interface, method, path);
+		warn("Called: %s.%s() on %s", interface, method, path);
 		dispatcher->handler(invocation, userdata);
 
 		return true;

@@ -141,7 +141,7 @@ void ba_adapter_unref(struct ba_adapter *a) {
 	if (ref_count > 0)
 		return;
 
-	warning("Freeing adapter: %s", a->hci.name);
+	warn("Freeing adapter: %s", a->hci.name);
 	g_assert_cmpint(ref_count, ==, 0);
 
 	/* make sure that the SCO dispatcher is terminated before free() */

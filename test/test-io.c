@@ -122,24 +122,24 @@ void *sco_dec_thread(struct ba_transport_pcm *t_pcm);
 void *sco_enc_thread(struct ba_transport_pcm *t_pcm);
 
 int bluealsa_dbus_pcm_register(struct ba_transport_pcm *pcm) {
-	warning("%s: %p", __func__, (void *)pcm); (void)pcm; return 0; }
+	warn("%s: %p", __func__, (void *)pcm); (void)pcm; return 0; }
 void bluealsa_dbus_pcm_update(struct ba_transport_pcm *pcm, unsigned int mask) {
-	warning("%s: %p %#x", __func__, (void *)pcm, mask); (void)pcm; (void)mask; }
+	warn("%s: %p %#x", __func__, (void *)pcm, mask); (void)pcm; (void)mask; }
 void bluealsa_dbus_pcm_unregister(struct ba_transport_pcm *pcm) {
-	warning("%s: %p", __func__, (void *)pcm); (void)pcm; }
+	warn("%s: %p", __func__, (void *)pcm); (void)pcm; }
 struct ba_rfcomm *ba_rfcomm_new(struct ba_transport *sco, int fd) {
-	warning("%s: %p", __func__, (void *)sco); (void)sco; (void)fd; return NULL; }
+	warn("%s: %p", __func__, (void *)sco); (void)sco; (void)fd; return NULL; }
 void ba_rfcomm_destroy(struct ba_rfcomm *r) {
-	warning("%s: %p", __func__, (void *)r); (void)r; }
+	warn("%s: %p", __func__, (void *)r); (void)r; }
 int ba_rfcomm_send_signal(struct ba_rfcomm *r, enum ba_rfcomm_signal sig) {
-	warning("%s: %p: %#x", __func__, (void *)r, sig); (void)r; (void)sig; return 0; }
+	warn("%s: %p: %#x", __func__, (void *)r, sig); (void)r; (void)sig; return 0; }
 bool bluez_a2dp_set_configuration(const char *current_dbus_sep_path,
 		const struct a2dp_sep_config *sep, const void *configuration, GError **error) {
-	warning("%s: %s: %p", __func__, current_dbus_sep_path, sep);
+	warn("%s: %s: %p", __func__, current_dbus_sep_path, sep);
 	(void)current_dbus_sep_path; (void)sep; (void)configuration; (void)error;
 	return false; }
 int ofono_call_volume_update(struct ba_transport *t) {
-	warning("%s: %p", __func__, t); (void)t; return 0; }
+	warn("%s: %p", __func__, t); (void)t; return 0; }
 int midi_transport_alsa_seq_create(struct ba_transport *t) { (void)t; return 0; }
 int midi_transport_alsa_seq_delete(struct ba_transport *t) { (void)t; return 0; }
 int midi_transport_start(struct ba_transport *t) { (void)t; return 0; }
@@ -335,7 +335,7 @@ static void pcm_write_frames(struct ba_transport_pcm *pcm, size_t frames) {
 
 	size_t samples = pcm->channels * frames;
 	size_t bytes = BA_TRANSPORT_PCM_FORMAT_BYTES(pcm->format) * samples;
-	warning("PCM write samples: %zu (%zu bytes)", samples, bytes);
+	warn("PCM write samples: %zu (%zu bytes)", samples, bytes);
 
 	if (dump_data) {
 		FILE *f;
@@ -396,7 +396,7 @@ static void bt_data_write(struct ba_transport *t) {
 
 		while ((len = bt_dump_read(btdin, buffer, sizeof(buffer))) != -1) {
 			if (packet_loss && random() < INT32_MAX / 3 && !first_packet) {
-				warning("Simulating packet loss: Dropping BT packet!");
+				warn("Simulating packet loss: Dropping BT packet!");
 				continue;
 			}
 			ck_assert_int_ne(poll(fds, ARRAYSIZE(fds), -1), -1);
@@ -415,7 +415,7 @@ static void bt_data_write(struct ba_transport *t) {
 		for (; bt_data_head != bt_data_end; bt_data_head = bt_data_head->next) {
 			len = bt_data_head->len;
 			if (packet_loss && random() < INT32_MAX / 3 && !first_packet) {
-				warning("Simulating packet loss: Dropping BT packet!");
+				warn("Simulating packet loss: Dropping BT packet!");
 				continue;
 			}
 			ck_assert_int_ne(poll(fds, ARRAYSIZE(fds), -1), -1);
@@ -544,13 +544,13 @@ static void *test_io_thread_dump_pcm(struct ba_transport_pcm *t_pcm) {
 			break;
 
 		if ((len = read(pfds[0].fd, buffer, sizeof(buffer))) == -1) {
-			warning("PCM read error: %s", strerror(errno));
+			warn("PCM read error: %s", strerror(errno));
 			continue;
 		}
 
 		size_t sample_size = BA_TRANSPORT_PCM_FORMAT_BYTES(t_pcm->format);
 		size_t samples = len / sample_size;
-		warning("Decoded samples: %zd", samples);
+		warn("Decoded samples: %zd", samples);
 		decoded_samples_total += samples;
 
 #if HAVE_SNDFILE
@@ -573,7 +573,7 @@ static void *test_io_thread_dump_pcm(struct ba_transport_pcm *t_pcm) {
 
 	}
 
-	warning("Decoded samples total [%zu frames]: %zu",
+	warn("Decoded samples total [%zu frames]: %zu",
 			decoded_samples_total / t_pcm->channels, decoded_samples_total);
 	ck_assert_int_gt(decoded_samples_total, 0);
 
@@ -609,13 +609,13 @@ static void test_io(
 
 	int bt_fds[2];
 	ck_assert_int_eq(socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_NONBLOCK, 0, bt_fds), 0);
-	warning("Created BT socket pair: %d, %d", bt_fds[0], bt_fds[1]);
+	warn("Created BT socket pair: %d, %d", bt_fds[0], bt_fds[1]);
 	t_src->bt_fd = bt_fds[1];
 	t_snk->bt_fd = bt_fds[0];
 
 	int pcm_fds[2];
 	ck_assert_int_eq(socketpair(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0, pcm_fds), 0);
-	warning("Created PCM socket pair: %d, %d", pcm_fds[0], pcm_fds[1]);
+	warn("Created PCM socket pair: %d, %d", pcm_fds[0], pcm_fds[1]);
 	t_src_pcm->fd = pcm_fds[1];
 	t_snk_pcm->fd = pcm_fds[0];
 
@@ -655,7 +655,7 @@ static void test_io(
 }
 
 static int test_transport_acquire(struct ba_transport *t) {
-	warning("Acquire transport: %d", t->bt_fd); (void)t;
+	warn("Acquire transport: %d", t->bt_fd); (void)t;
 	return 0;
 }
 
@@ -727,7 +727,7 @@ CK_START_TEST(test_a2dp_sbc_invalid_config) {
 
 	int bt_fds[2];
 	ck_assert_int_eq(socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_NONBLOCK, 0, bt_fds), 0);
-	warning("Created BT socket pair: %d, %d", bt_fds[0], bt_fds[1]);
+	warn("Created BT socket pair: %d, %d", bt_fds[0], bt_fds[1]);
 	t->mtu_read = t->mtu_write = 153 * 3;
 	t->bt_fd = bt_fds[1];
 
@@ -745,7 +745,7 @@ static void setup_a2dp_link(struct ba_transport *t_source, struct ba_transport *
 	int bt_fds[2];
 	/* Link transports together using BT socket pair. */
 	ck_assert_int_eq(socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_NONBLOCK, 0, bt_fds), 0);
-	warning("Created BT socket pair: %d, %d", bt_fds[0], bt_fds[1]);
+	warn("Created BT socket pair: %d, %d", bt_fds[0], bt_fds[1]);
 	t_source->mtu_read = t_source->mtu_write = mtu;
 	t_sink->mtu_read = t_sink->mtu_write = mtu;
 	t_source->bt_fd = bt_fds[1];
@@ -754,14 +754,14 @@ static void setup_a2dp_link(struct ba_transport *t_source, struct ba_transport *
 	int pcm_snk_fds[2];
 	/* Attach sink PCM to the source transport. */
 	ck_assert_int_eq(pipe2(pcm_snk_fds, O_NONBLOCK), 0);
-	warning("Created PCM pipe pair: %d, %d", pcm_snk_fds[0], pcm_snk_fds[1]);
+	warn("Created PCM pipe pair: %d, %d", pcm_snk_fds[0], pcm_snk_fds[1]);
 	t_source->a2dp.pcm.fd = pcm_snk_fds[0];
 	t_source->a2dp.pcm.paused = false;
 
 	int pcm_src_fds[2];
 	/* Attach source PCM to the sink transport. */
 	ck_assert_int_eq(pipe2(pcm_src_fds, O_NONBLOCK), 0);
-	warning("Created PCM pipe pair: %d, %d", pcm_src_fds[0], pcm_src_fds[1]);
+	warn("Created PCM pipe pair: %d, %d", pcm_src_fds[0], pcm_src_fds[1]);
 	t_sink->a2dp.pcm.fd = pcm_src_fds[1];
 	t_sink->a2dp.pcm.paused = false;
 
@@ -1038,7 +1038,7 @@ CK_START_TEST(test_a2dp_aac_configuration_select) {
 
 			/* Select the configuration based on the pre-selected capabilities. */
 			if (a2dp_aac_source.configuration_select(&a2dp_aac_source, &config_aac) != 0) {
-				warning("AAC unsupported configuration: channels=%u, sampling=%u",
+				warn("AAC unsupported configuration: channels=%u, sampling=%u",
 						channels[i], samplings[j]);
 				continue;
 			}
@@ -1050,7 +1050,7 @@ CK_START_TEST(test_a2dp_aac_configuration_select) {
 
 			int bt_fds[2];
 			ck_assert_int_eq(socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_NONBLOCK, 0, bt_fds), 0);
-			warning("Created BT socket pair: %d, %d", bt_fds[0], bt_fds[1]);
+			warn("Created BT socket pair: %d, %d", bt_fds[0], bt_fds[1]);
 			t->mtu_read = t->mtu_write = 153 * 3;
 			t->bt_fd = bt_fds[1];
 
@@ -1467,13 +1467,13 @@ int main(int argc, char *argv[]) {
 		case BT_DUMP_MODE_A2DP_SOURCE:
 		case BT_DUMP_MODE_A2DP_SINK:
 			codec = a2dp_codecs_codec_id_to_string(btdin->transport_codec_id);
-			warning("BT dump A2DP codec: %s (%#x)", codec, btdin->transport_codec_id);
+			warn("BT dump A2DP codec: %s (%#x)", codec, btdin->transport_codec_id);
 			hexdump("BT dump A2DP configuration",
 					&btdin->a2dp_configuration, btdin->a2dp_configuration_size);
 			break;
 		case BT_DUMP_MODE_SCO:
 			codec = hfp_codec_id_to_string(btdin->transport_codec_id);
-			warning("BT dump HFP codec: %s (%#x)", codec, btdin->transport_codec_id);
+			warn("BT dump HFP codec: %s (%#x)", codec, btdin->transport_codec_id);
 			break;
 		}
 

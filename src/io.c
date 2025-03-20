@@ -44,7 +44,7 @@ retry:
 			goto retry;
 		case ECONNRESET:
 		case ENOTCONN:
-			warning("BT socket disconnected: %s", strerror(errno));
+			warn("BT socket disconnected: %s", strerror(errno));
 			ret = 0;
 			break;
 		case ECONNABORTED:
@@ -87,7 +87,7 @@ retry:
 			goto retry;
 		case ECONNRESET:
 		case ENOTCONN:
-			warning("BT socket disconnected: %s", strerror(errno));
+			warn("BT socket disconnected: %s", strerror(errno));
 			ret = 0;
 			break;
 		case ECONNABORTED:
@@ -169,7 +169,7 @@ ssize_t io_pcm_flush(struct ba_transport_pcm *pcm) {
 	const size_t sample_size = BA_TRANSPORT_PCM_FORMAT_BYTES(pcm->format);
 
 	while ((rv = splice(fd, NULL, config.null_fd, NULL, 32 * 1024, SPLICE_F_NONBLOCK)) > 0) {
-		warning("Flushed PCM samples [%d]: %zd", fd, rv / sample_size);
+		warn("Flushed PCM samples [%d]: %zd", fd, rv / sample_size);
 		samples += rv / sample_size;
 	}
 
@@ -199,7 +199,7 @@ ssize_t io_pcm_read(
 		continue;
 
 	if (ret == 0) {
-		warning("PCM client closed connection: %d", fd);
+		warn("PCM client closed connection: %d", fd);
 		ba_transport_pcm_release(pcm);
 	}
 
@@ -245,7 +245,7 @@ ssize_t io_pcm_write(
 			case EPIPE:
 				/* This errno value will be received only, when the SIGPIPE
 				 * signal is caught, blocked or ignored. */
-				warning("PCM client closed connection: %d", fd);
+				warn("PCM client closed connection: %d", fd);
 				ba_transport_pcm_release(pcm);
 				ret = 0;
 				/* fall-through */

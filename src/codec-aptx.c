@@ -178,7 +178,7 @@ ssize_t aptxdec_decode(HANDLE_APTX handle, const void *input, size_t len,
 		return -1;
 
 	if (!synced && dropped > 0)
-		warning("Apt-X stream out of sync: Dropped bytes: %zd", dropped);
+		warn("Apt-X stream out of sync: Dropped bytes: %zd", dropped);
 
 	for (size_t i = 0; i < written / 3 / 2; i++) {
 		*output++ = pcm[i * 6 + 0 + 1] | (pcm[i * 6 + 0 + 2] << 8);
@@ -279,7 +279,7 @@ ssize_t aptxhddec_decode(HANDLE_APTX handle, const void *input, size_t len,
 		return -1;
 
 	if (!synced && dropped > 0)
-		warning("Apt-X HD stream out of sync: Dropped bytes: %zd", dropped);
+		warn("Apt-X HD stream out of sync: Dropped bytes: %zd", dropped);
 
 	int32_t base;
 	for (size_t i = 0; i < written / 3 / 2; i++) {

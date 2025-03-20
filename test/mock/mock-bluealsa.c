@@ -224,7 +224,7 @@ int transport_acquire_bt_sco(struct ba_transport *t) {
 	t->mtu_read = 48;
 	t->mtu_write = 48;
 
-	warning("New SCO link: %s: %d", batostr_(&t->d->addr), t->bt_fd);
+	warn("New SCO link: %s: %d", batostr_(&t->d->addr), t->bt_fd);
 	g_thread_unref(mock_bt_dump_thread_new(bt_fds[1]));
 
 	return bt_fds[0];

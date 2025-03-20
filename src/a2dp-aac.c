@@ -379,7 +379,7 @@ void *a2dp_aac_enc_thread(struct ba_transport_pcm *t_pcm) {
 						break;
 
 					/* move the rest of data to the beginning of payload */
-					warning("AAC payload fragmentation: extra %zu bytes", payload_len);
+					warn("AAC payload fragmentation: extra %zu bytes", payload_len);
 					memmove(rtp_payload, rtp_payload + len, payload_len);
 
 				}
@@ -513,7 +513,7 @@ void *a2dp_aac_dec_thread(struct ba_transport_pcm *t_pcm) {
 		}
 
 		if (ffb_len_in(&latm) < rtp_latm_len) {
-			warning("Resizing LATM buffer: %zd -> %zd", latm.nmemb, latm.nmemb + t->mtu_read);
+			warn("Resizing LATM buffer: %zd -> %zd", latm.nmemb, latm.nmemb + t->mtu_read);
 			if (ffb_init_uint8_t(&latm, latm.nmemb + t->mtu_read) == -1)
 				error("Couldn't resize LATM buffer: %s", strerror(errno));
 		}
@@ -524,7 +524,7 @@ void *a2dp_aac_dec_thread(struct ba_transport_pcm *t_pcm) {
 		}
 
 		if (markbit_quirk != 1 && !rtp_header->markbit) {
-			warning("Fragmented RTP packet [%u]: LATM len: %zd", rtp.seq_number, rtp_latm_len);
+			warn("Fragmented RTP packet [%u]: LATM len: %zd", rtp.seq_number, rtp_latm_len);
 			continue;
 		}
 
@@ -664,18 +664,18 @@ static int a2dp_aac_configuration_check(
 	case AAC_OBJECT_TYPE_MPEG4_ELD2:
 		break;
 	default:
-		warning("AAC: Invalid object type: %#x", conf->object_type);
+		warn("AAC: Invalid object type: %#x", conf->object_type);
 		return A2DP_CHECK_ERR_OBJECT_TYPE;
 	}
 
 	const uint16_t conf_sampling_freq = A2DP_AAC_GET_SAMPLING_FREQ(conf_v);
 	if (a2dp_bit_mapping_lookup(a2dp_aac_samplings, conf_sampling_freq) == 0) {
-		warning("AAC: Invalid sampling frequency: %#x", A2DP_AAC_GET_SAMPLING_FREQ(*conf));
+		warn("AAC: Invalid sampling frequency: %#x", A2DP_AAC_GET_SAMPLING_FREQ(*conf));
 		return A2DP_CHECK_ERR_SAMPLING;
 	}
 
 	if (a2dp_bit_mapping_lookup(a2dp_aac_channels, conf_v.channel_mode) == 0) {
-		warning("AAC: Invalid channel mode: %#x", conf->channel_mode);
+		warn("AAC: Invalid channel mode: %#x", conf->channel_mode);
 		return A2DP_CHECK_ERR_CHANNEL_MODE;
 	}
 
@@ -709,7 +709,7 @@ static int a2dp_aac_source_init(struct a2dp_sep *sep) {
 
 	unsigned int caps_aac = FDKlibInfo_getCapabilities(info, FDK_AACENC);
 	unsigned int caps_sbr = FDKlibInfo_getCapabilities(info, FDK_SBRENC);
-	warning("FDK-AAC encoder capabilities: aac=%#x sbr=%#x", caps_aac, caps_sbr);
+	warn("FDK-AAC encoder capabilities: aac=%#x sbr=%#x", caps_aac, caps_sbr);
 
 	/* Check whether mandatory AAC profile is supported. */
 	if ((caps_aac & CAPF_AAC_LC) == 0) {
@@ -797,7 +797,7 @@ static int a2dp_aac_sink_init(struct a2dp_sep *sep) {
 	unsigned int caps_aac = FDKlibInfo_getCapabilities(info, FDK_AACDEC);
 	unsigned int caps_sbr = FDKlibInfo_getCapabilities(info, FDK_SBRDEC);
 	unsigned int caps_dmx = FDKlibInfo_getCapabilities(info, FDK_PCMDMX);
-	warning("FDK-AAC decoder capabilities: aac=%#x sbr=%#x dmx=%#x",
+	warn("FDK-AAC decoder capabilities: aac=%#x sbr=%#x dmx=%#x",
 			caps_aac, caps_sbr, caps_dmx);
 
 	/* Check whether mandatory AAC profile is supported. */

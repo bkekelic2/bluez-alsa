@@ -298,7 +298,7 @@ void *a2dp_mp3_enc_thread(struct ba_transport_pcm *t_pcm) {
 					break;
 
 				/* move rest of data to the beginning of the payload */
-				warning("Payload fragmentation: extra %zd bytes", payload_len);
+				warn("Payload fragmentation: extra %zd bytes", payload_len);
 				memmove(rtp_payload, rtp_payload + len, payload_len);
 
 			}
@@ -457,7 +457,7 @@ decode:
 			break;
 		case MPG123_NEW_FORMAT:
 			mpg123_getformat(handle, &rate, &channels_, &encoding);
-			warning("MPG123 new format detected: r:%ld, ch:%d, enc:%#x", rate, channels_, encoding);
+			warn("MPG123 new format detected: r:%ld, ch:%d, enc:%#x", rate, channels_, encoding);
 			break;
 		default:
 			error("MPG123 decoding error: %s", mpg123_strerror(handle));
@@ -591,17 +591,17 @@ static int a2dp_mpeg_configuration_check(
 	case MPEG_LAYER_MP3:
 		break;
 	default:
-		warning("MPEG: Invalid layer: %#x", conf->layer);
+		warn("MPEG: Invalid layer: %#x", conf->layer);
 		return A2DP_CHECK_ERR_MPEG_LAYER;
 	}
 
 	if (a2dp_bit_mapping_lookup(a2dp_mpeg_channels, conf_v.channel_mode) == 0) {
-		warning("MPEG: Invalid channel mode: %#x", conf->channel_mode);
+		warn("MPEG: Invalid channel mode: %#x", conf->channel_mode);
 		return A2DP_CHECK_ERR_CHANNEL_MODE;
 	}
 
 	if (a2dp_bit_mapping_lookup(a2dp_mpeg_samplings, conf_v.sampling_freq) == 0) {
-		warning("MPEG: Invalid sampling frequency: %#x", conf->sampling_freq);
+		warn("MPEG: Invalid sampling frequency: %#x", conf->sampling_freq);
 		return A2DP_CHECK_ERR_SAMPLING;
 	}
 

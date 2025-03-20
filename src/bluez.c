@@ -150,7 +150,7 @@ static void bluez_register_media_application(struct bluez_adapter *b_adapter) {
 	GVariant *body = g_variant_new("(oa{sv})", path, NULL);
 	g_dbus_message_set_body(msg, body);
 
-	warning("Registering media application: %s", path);
+	warn("Registering media application: %s", path);
 	g_dbus_connection_send_message_with_reply(config.dbus, msg,
 			G_DBUS_SEND_MESSAGE_FLAGS_NONE, -1, NULL, NULL,
 			bluez_register_media_application_finish, NULL);
@@ -172,7 +172,7 @@ static void bluez_register_battery_provider_finish(GObject *source,
 		if (err->code == G_DBUS_ERROR_UNKNOWN_METHOD) {
 			/* Suppress warning message in case when BlueZ has no battery provider
 			 * support enabled, because it's not a mandatory feature. */
-			warning("BlueZ battery provider support not available");
+			warn("BlueZ battery provider support not available");
 			g_error_free(err);
 			err = NULL;
 		}
@@ -205,7 +205,7 @@ static void bluez_register_battery_provider(struct bluez_adapter *b_adapter) {
 
 	g_dbus_message_set_body(msg, g_variant_new("(o)", path));
 
-	warning("Registering battery provider: %s", path);
+	warn("Registering battery provider: %s", path);
 	g_dbus_connection_send_message_with_reply(config.dbus, msg,
 			G_DBUS_SEND_MESSAGE_FLAGS_NONE, -1, NULL, NULL,
 			bluez_register_battery_provider_finish, NULL);
@@ -569,12 +569,12 @@ static void bluez_endpoint_set_configuration(GDBusMethodInvocation *inv, void *u
 	t->a2dp.delay = delay;
 	t->a2dp.volume = volume;
 
-	warning("%s configured for device %s",
+	warn("%s configured for device %s",
 			ba_transport_debug_name(t),
 			batostr_(&d->addr));
 	hexdump("A2DP selected configuration blob",
 			&configuration, sep->config.caps_size);
-	warning("PCM configuration: channels: %u, sampling: %u",
+	warn("PCM configuration: channels: %u, sampling: %u",
 			t->a2dp.pcm.channels, t->a2dp.pcm.sampling);
 
 	ba_transport_set_a2dp_state(t, state);
@@ -612,7 +612,7 @@ static void bluez_endpoint_clear_configuration(GDBusMethodInvocation *inv, void 
 	struct ba_device *d = NULL;
 	struct ba_transport *t = NULL;
 
-	warning("Disconnecting media endpoint: %s", dbus_obj->path);
+	warn("Disconnecting media endpoint: %s", dbus_obj->path);
 
 	bluez_dbus_object_data_device_set(dbus_obj, NULL);
 	dbus_obj->connected = false;
@@ -643,7 +643,7 @@ static void bluez_endpoint_release(GDBusMethodInvocation *inv, void *userdata) {
 
 	struct bluez_dbus_object_data *dbus_obj = userdata;
 
-	warning("Releasing media endpoint: %s", dbus_obj->path);
+	warn("Releasing media endpoint: %s", dbus_obj->path);
 
 	bluez_dbus_object_data_device_set(dbus_obj, NULL);
 	dbus_obj->connected = false;
@@ -740,7 +740,7 @@ static void bluez_export_a2dp(
 			if (index > connected + 2)
 				break;
 
-			warning("Exporting media endpoint object: %s", path);
+			warn("Exporting media endpoint object: %s", path);
 
 			if ((dbus_obj = calloc(1, sizeof(*dbus_obj))) == NULL) {
 				warn("Couldn't export media endpoint: %s", strerror(errno));
@@ -854,7 +854,7 @@ static bool bluez_manager_battery_add(struct ba_device *device) {
 			G_DBUS_INTERFACE_SKELETON(ifs_battery_provider));
 	g_object_unref(ifs_battery_provider);
 
-	warning("Adding battery to battery provider: %s", path);
+	warn("Adding battery to battery provider: %s", path);
 
 	device->ba_battery_dbus_path = path;
 
@@ -885,7 +885,7 @@ static bool bluez_manager_battery_remove(struct ba_device *device) {
 	char *path = device->ba_battery_dbus_path;
 	device->ba_battery_dbus_path = NULL;
 
-	warning("Removing battery from battery provider: %s", path);
+	warn("Removing battery from battery provider: %s", path);
 	g_dbus_object_manager_server_unexport(manager, path);
 	g_free(path);
 
@@ -941,7 +941,7 @@ static void bluez_profile_new_connection(GDBusMethodInvocation *inv, void *userd
 		goto fail;
 	}
 
-	warning("%s configured for device %s",
+	warn("%s configured for device %s",
 			ba_transport_debug_name(t),
 			batostr_(&d->addr));
 
@@ -973,7 +973,7 @@ static void bluez_profile_request_disconnection(GDBusMethodInvocation *inv, void
 	GVariant *params = g_dbus_method_invocation_get_parameters(inv);
 	struct bluez_dbus_object_data *dbus_obj = userdata;
 
-	warning("Disconnecting hands-free profile: %s", dbus_obj->path);
+	warn("Disconnecting hands-free profile: %s", dbus_obj->path);
 	dbus_obj->connected = false;
 
 	struct ba_adapter *a = NULL;
@@ -1007,7 +1007,7 @@ static void bluez_profile_release(GDBusMethodInvocation *inv, void *userdata) {
 
 	struct bluez_dbus_object_data *dbus_obj = userdata;
 
-	warning("Releasing hands-free profile: %s", dbus_obj->path);
+	warn("Releasing hands-free profile: %s", dbus_obj->path);
 	dbus_obj->connected = false;
 	dbus_obj->registered = false;
 
@@ -1026,7 +1026,7 @@ static int bluez_register_profile(
 	GDBusMessage *msg = NULL, *rep = NULL;
 	int ret = -1;
 
-	warning("Registering hands-free profile: %s", dbus_obj->path);
+	warn("Registering hands-free profile: %s", dbus_obj->path);
 
 	msg = g_dbus_message_new_method_call(BLUEZ_SERVICE, "/org/bluez",
 			BLUEZ_IFACE_PROFILE_MANAGER, "RegisterProfile");
@@ -1095,7 +1095,7 @@ static void bluez_register_hfp(
 	const char *path = bluez_get_profile_object_path(profile);
 	if ((dbus_obj = g_hash_table_lookup(dbus_object_data_map, path)) == NULL) {
 
-		warning("Creating hands-free profile object: %s", path);
+		warn("Creating hands-free profile object: %s", path);
 
 		if ((dbus_obj = calloc(1, sizeof(*dbus_obj))) == NULL) {
 			warn("Couldn't register hands-free profile: %s", strerror(errno));
@@ -1287,7 +1287,7 @@ static void bluez_signal_interfaces_added(GDBusConnection *conn, const char *sen
 	};
 
 	g_variant_get(params, "(&oa{sa{sv}})", &object_path, &interfaces);
-	warning("Signal: %s.%s(%s, ...)", interface_, signal, object_path);
+	warn("Signal: %s.%s(%s, ...)", interface_, signal, object_path);
 
 	while (g_variant_iter_next(interfaces, "{&sa{sv}}", &interface, &properties)) {
 		if (strcmp(interface, BLUEZ_IFACE_ADAPTER) == 0) {
@@ -1359,7 +1359,7 @@ static void bluez_signal_interfaces_added(GDBusConnection *conn, const char *sen
 		if (sep_cfg.codec_id == A2DP_CODEC_VENDOR)
 			sep_cfg.codec_id = a2dp_get_vendor_codec_id(&sep_cfg.capabilities, sep_cfg.caps_size);
 
-		warning("Adding new Stream End-Point: %s: %s: %s",
+		warn("Adding new Stream End-Point: %s: %s: %s",
 				batostr_(&addr), sep_cfg.type == A2DP_SOURCE ? "SRC" : "SNK",
 				a2dp_codecs_codec_id_to_string(sep_cfg.codec_id));
 
@@ -1390,7 +1390,7 @@ static void bluez_signal_interfaces_removed(GDBusConnection *conn, const char *s
 	int hci_dev_id;
 
 	g_variant_get(params, "(&oas)", &object_path, &interfaces);
-	warning("Signal: %s.%s(%s, ...)", interface_, signal, object_path);
+	warn("Signal: %s.%s(%s, ...)", interface_, signal, object_path);
 
 	hci_dev_id = g_dbus_bluez_object_path_to_hci_dev_id(object_path);
 
@@ -1425,7 +1425,7 @@ static void bluez_signal_interfaces_removed(GDBusConnection *conn, const char *s
 			for (size_t i = 0; i < sep_cfgs->len; i++) {
 				const struct a2dp_sep_config *sep_cfg = &ba_device_sep_cfg_array_index(sep_cfgs, i);
 				if (strcmp(sep_cfg->bluez_dbus_path, object_path) == 0) {
-					warning("Removing Stream End-Point: %s: %s: %s",
+					warn("Removing Stream End-Point: %s: %s: %s",
 							batostr_(&addr), sep_cfg->type == A2DP_SOURCE ? "SRC" : "SNK",
 							a2dp_codecs_codec_id_to_string(sep_cfg->codec_id));
 					g_array_remove_index_fast(sep_cfgs, i);
@@ -1477,7 +1477,7 @@ static void bluez_signal_transport_changed(GDBusConnection *conn, const char *se
 
 	g_variant_get(params, "(&sa{sv}as)", &interface, &properties, NULL);
 	while (g_variant_iter_next(properties, "{&sv}", &property, &value)) {
-		warning("Signal: %s.%s(): %s: %s", interface_, signal, interface, property);
+		warn("Signal: %s.%s(): %s: %s", interface_, signal, interface, property);
 
 		if (strcmp(property, "State") == 0 &&
 				g_variant_validate_value(value, G_VARIANT_TYPE_STRING, property)) {
@@ -1495,11 +1495,11 @@ static void bluez_signal_transport_changed(GDBusConnection *conn, const char *se
 			uint16_t volume = t->a2dp.volume = g_variant_get_uint16(value);
 			if (t->profile & BA_TRANSPORT_PROFILE_A2DP_SOURCE &&
 					t->a2dp.pcm.soft_volume)
-				warning("Skipping A2DP volume update: %u", volume);
+				warn("Skipping A2DP volume update: %u", volume);
 			else {
 
 				int level = ba_transport_pcm_volume_range_to_level(volume, BLUEZ_A2DP_VOLUME_MAX);
-				warning("Updating A2DP volume: %u [%.2f dB]", volume, 0.01 * level);
+				warn("Updating A2DP volume: %u [%.2f dB]", volume, 0.01 * level);
 
 				pthread_mutex_lock(&t->a2dp.pcm.mutex);
 				ba_transport_pcm_volume_set(&t->a2dp.pcm.volume[0], &level, NULL, NULL);

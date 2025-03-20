@@ -140,7 +140,7 @@ void ba_device_unref(struct ba_device *d) {
 	/* save persistent storage */
 	storage_device_save(d);
 
-	warning("Freeing device: %s", batostr_(&d->addr));
+	warn("Freeing device: %s", batostr_(&d->addr));
 	g_assert_cmpint(ref_count, ==, 0);
 
 	ba_adapter_unref(a);
