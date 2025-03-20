@@ -110,7 +110,7 @@ static int rfcomm_write_at(int fd, enum bt_at_type type, const char *command,
 	char msg[256];
 	size_t len;
 
-	debug("Sending AT message: %s: command:%s, value:%s",
+	warning("Sending AT message: %s: command:%s, value:%s",
 			at_type2str(type), command, value);
 
 	at_build(msg, sizeof(msg), type, command, value);
@@ -129,7 +129,7 @@ retry:
 /**
  * HFP set state wrapper for debugging purposes. */
 static void rfcomm_set_hfp_state(struct ba_rfcomm *r, enum hfp_slc_state state) {
-	debug("RFCOMM: %s state transition: %d -> %d",
+	warning("RFCOMM: %s state transition: %d -> %d",
 			ba_transport_debug_name(r->sco), r->state, state);
 	r->state = state;
 }
@@ -319,7 +319,7 @@ static void debug_ag_features(uint32_t features) {
 	const char *names[32] = { NULL };
 	hfp_ag_features_to_strings(features, names, ARRAYSIZE(names));
 	char *tmp = g_strjoinv(", ", (char **)names);
-	debug("AG features [%u]: %s", features, tmp);
+	warning("AG features [%u]: %s", features, tmp);
 	g_free(tmp);
 }
 #endif
@@ -331,7 +331,7 @@ static void debug_hf_features(uint32_t features) {
 	const char *names[32] = { NULL };
 	hfp_hf_features_to_strings(features, names, ARRAYSIZE(names));
 	char *tmp = g_strjoinv(", ", (char **)names);
-	debug("HF features [%u]: %s", features, tmp);
+	warning("HF features [%u]: %s", features, tmp);
 	g_free(tmp);
 }
 #endif
@@ -878,6 +878,44 @@ static int rfcomm_handler_xapl_resp_cb(struct ba_rfcomm *r, const struct bt_at *
 	return 0;
 }
 
+static int rfcomm_handler_cnum_resp_cb(struct rfcomm_conn *c, const struct bt_at *at) {
+    const char *number = "+33785812510"; // Replace with the desired number
+    char response[64];
+    const int fd = c->t->bt_fd;
+
+    snprintf(response, sizeof(response), "+CNUM: ,\"%s\",145,,4", number);
+    
+    if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, response) == -1)
+        return -1;
+	
+	// Send the OK response
+	if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "OK") == -1)
+		return -1;
+
+	// Wait 1 second and send +CIEV: 3,2
+    sleep(1);
+    if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "+CIEV: 3,2") == -1)
+        return -1;
+
+    return 0;
+}
+
+static int rfcomm_handler_clcc_resp_cb(struct rfcomm_conn *c, const struct bt_at *at) {
+    const int fd = c->t->bt_fd;
+    char response[64];
+
+    // Send +CLCC response
+    snprintf(response, sizeof(response), "+CLCC: 1,0,2,0,0,\"10000000\",129");
+    if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, response) == -1)
+        return -1;
+
+    // Send OK response
+    if (rfcomm_write_at(fd, AT_TYPE_RESP, NULL, "OK") == -1)
+        return -1;
+
+    return 0;
+}
+
 static const struct ba_rfcomm_handler rfcomm_handler_resp_ok = {
 	AT_TYPE_RESP, "", rfcomm_handler_resp_ok_cb };
 static const struct ba_rfcomm_handler rfcomm_handler_cind_test = {
@@ -926,7 +964,11 @@ static const struct ba_rfcomm_handler rfcomm_handler_xapl_set = {
 	AT_TYPE_CMD_SET, "+XAPL", rfcomm_handler_xapl_set_cb };
 static const struct ba_rfcomm_handler rfcomm_handler_xapl_resp = {
 	AT_TYPE_RESP, "+XAPL", rfcomm_handler_xapl_resp_cb };
-
+static const struct rfcomm_handler rfcomm_handler_cnum_resp = {
+	AT_TYPE_CMD, "+CNUM", rfcomm_handler_cnum_resp_cb };
+static const struct rfcomm_handler rfcomm_handler_clcc_resp = {
+	AT_TYPE_CMD, "+CLCC", rfcomm_handler_clcc_resp_cb };
+	
 /**
  * Get callback (if available) for given AT message. */
 static ba_rfcomm_callback *rfcomm_get_callback(const struct bt_at *at) {
@@ -953,6 +995,8 @@ static ba_rfcomm_callback *rfcomm_get_callback(const struct bt_at *at) {
 		&rfcomm_handler_iphoneaccev_set,
 		&rfcomm_handler_xapl_set,
 		&rfcomm_handler_xapl_resp,
+		&rfcomm_handler_cnum_resp,
+		&rfcomm_handler_clcc_resp,
 	};
 
 	for (size_t i = 0; i < ARRAYSIZE(handlers); i++) {
@@ -992,7 +1036,7 @@ static int rfcomm_hfp_set_codec(struct ba_rfcomm *r, uint8_t codec_id) {
 	const int fd = r->fd;
 	int rv = 0;
 
-	debug("RFCOMM: %s setting codec: %s",
+	warning("RFCOMM: %s setting codec: %s",
 			ba_transport_debug_name(t_sco),
 			hfp_codec_id_to_string(codec_id));
 
@@ -1115,7 +1159,7 @@ static int rfcomm_notify_volume_change_mic(struct ba_rfcomm *r, bool force) {
 		return 0;
 
 	r->gain_mic = gain;
-	debug("Updating microphone gain: %d", gain);
+	warning("Updating microphone gain: %d", gain);
 
 	/* for AG return unsolicited response code */
 	if (t_sco->profile & BA_TRANSPORT_PROFILE_MASK_AG) {
@@ -1147,7 +1191,7 @@ static int rfcomm_notify_volume_change_spk(struct ba_rfcomm *r, bool force) {
 		return 0;
 
 	r->gain_spk = gain;
-	debug("Updating speaker gain: %d", gain);
+	warning("Updating speaker gain: %d", gain);
 
 	/* for AG return unsolicited response code */
 	if (t_sco->profile & BA_TRANSPORT_PROFILE_MASK_AG) {
@@ -1169,7 +1213,7 @@ static void rfcomm_thread_cleanup(struct ba_rfcomm *r) {
 	if (r->fd == -1)
 		return;
 
-	debug("Closing RFCOMM: %d", r->fd);
+	warning("Closing RFCOMM: %d", r->fd);
 
 	shutdown(r->fd, SHUT_RDWR);
 	close(r->fd);
@@ -1185,7 +1229,7 @@ static void rfcomm_thread_cleanup(struct ba_rfcomm *r) {
 		bluez_battery_provider_update(d);
 
 		if (r->link_lost_quirk) {
-			debug("RFCOMM link lost quirk: Destroying SCO transport");
+			warning("RFCOMM link lost quirk: Destroying SCO transport");
 			r->sco->sco.rfcomm = NULL;
 			ba_transport_ref(r->sco);
 			ba_transport_destroy(r->sco);
@@ -1219,7 +1263,7 @@ static void *rfcomm_thread(struct ba_rfcomm *r) {
 		{ -1, POLLIN, 0 },
 	};
 
-	debug("Starting RFCOMM loop: %s", ba_transport_debug_name(t_sco));
+	warning("Starting RFCOMM loop: %s", ba_transport_debug_name(t_sco));
 	for (;;) {
 
 		/* During normal operation, RFCOMM should block indefinitely. However,
@@ -1399,7 +1443,7 @@ setup:
 #endif
 					/* fall-through */
 				case HFP_SETUP_COMPLETE:
-					debug("Initial connection setup completed");
+					warning("Initial connection setup completed");
 				}
 
 			/* If HFP transport codec is already selected (e.g. device
@@ -1444,7 +1488,7 @@ process:
 
 		switch (poll_rv) {
 		case 0:
-			debug("RFCOMM poll timeout");
+			warning("RFCOMM poll timeout");
 			r->idle = true;
 			continue;
 		case -1:
@@ -1594,7 +1638,7 @@ ioerror:
 		case ETIMEDOUT:
 		case EPIPE:
 			/* exit the thread upon socket disconnection */
-			debug("RFCOMM disconnected: %s", strerror(errno));
+			warning("RFCOMM disconnected: %s", strerror(errno));
 			goto fail;
 		default:
 			error("RFCOMM IO error: %s", strerror(errno));
@@ -1701,7 +1745,7 @@ struct ba_rfcomm *ba_rfcomm_new(struct ba_transport *sco, int fd) {
 
 	const char *name = "ba-rfcomm";
 	pthread_setname_np(r->thread, name);
-	debug("Created new RFCOMM thread [%s]: %s",
+	warning("Created new RFCOMM thread [%s]: %s",
 			name, ba_transport_debug_name(sco));
 
 	r->ba_dbus_path = g_strdup_printf("%s/rfcomm", sco->d->ba_dbus_path);

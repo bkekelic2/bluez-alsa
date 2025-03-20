@@ -247,7 +247,7 @@ const char *sbc_strerror(int err) {
 	case -ENOSPC:
 		return "No space for output data";
 	default:
-		debug("Unknown SBC error code: %d", err);
+		warning("Unknown SBC error code: %d", err);
 		return "Unknown error";
 	}
 }
@@ -275,7 +275,7 @@ void sbc_print_internals(const sbc_t *sbc) {
 	const unsigned int br = 8 * sbc_get_frame_length((sbc_t *)sbc) * frequency[sbc->frequency] /
 		((sbc->subbands + 1) * 4) / ((sbc->blocks + 1) * 4);
 
-	debug("SBC setup: %u Hz %s allocation=%s blocks=%u sub-bands=%u bit-pool=%u => %u bps",
+	warning("SBC setup: %u Hz %s allocation=%s blocks=%u sub-bands=%u bit-pool=%u => %u bps",
 			frequency[sbc->frequency],
 			mode[sbc->mode],
 			allocation[sbc->allocation],

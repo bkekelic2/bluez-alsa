@@ -33,7 +33,7 @@
 static void upower_signal_display_device_changed(GDBusConnection *conn, const char *sender,
 		const char *path, const char *interface_, const char *signal, GVariant *params,
 		void *userdata) {
-	debug("Signal: %s.%s()", interface_, signal);
+	warning("Signal: %s.%s()", interface_, signal);
 	(void)conn;
 	(void)sender;
 	(void)path;

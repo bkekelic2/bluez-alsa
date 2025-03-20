@@ -436,12 +436,12 @@ static int a2dp_ldac_configuration_check(
 	a2dp_ldac_caps_intersect(&conf_v, &sep->config.capabilities);
 
 	if (a2dp_bit_mapping_lookup(a2dp_ldac_samplings, conf_v.sampling_freq) == 0) {
-		debug("LDAC: Invalid sampling frequency: %#x", conf->sampling_freq);
+		warning("LDAC: Invalid sampling frequency: %#x", conf->sampling_freq);
 		return A2DP_CHECK_ERR_SAMPLING;
 	}
 
 	if (a2dp_bit_mapping_lookup(a2dp_ldac_channels, conf_v.channel_mode) == 0) {
-		debug("LDAC: Invalid channel mode: %#x", conf->channel_mode);
+		warning("LDAC: Invalid channel mode: %#x", conf->channel_mode);
 		return A2DP_CHECK_ERR_CHANNEL_MODE;
 	}
 

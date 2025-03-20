@@ -157,7 +157,7 @@ void rtp_state_sync_stream(
 				rtp->ts_rtp_clockrate, rtp->ts_pcm_samplerate);
 
 		if ((*missing_pcm_frames = expect_pcm_frames - rtp->ts_pcm_frames) != 0) {
-			debug("Missing PCM frames [%u]: %d", hdr_timestamp, *missing_pcm_frames);
+			warning("Missing PCM frames [%u]: %d", hdr_timestamp, *missing_pcm_frames);
 			rtp->ts_pcm_frames = expect_pcm_frames;
 		}
 

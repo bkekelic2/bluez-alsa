@@ -354,7 +354,7 @@ void *a2dp_lc3plus_enc_thread(struct ba_transport_pcm *t_pcm) {
 					break;
 
 				/* move the rest of data to the beginning of payload */
-				debug("LC3plus payload fragmentation: extra %zu bytes", payload_len);
+				warning("LC3plus payload fragmentation: extra %zu bytes", payload_len);
 				memmove(rtp_payload, rtp_payload + len, payload_len);
 
 				rtp_media_header->first_fragment = 0;
@@ -501,7 +501,7 @@ void *a2dp_lc3plus_dec_thread(struct ba_transport_pcm *t_pcm) {
 #if DEBUG
 		if (missing_pcm_frames > 0) {
 			size_t missing_lc3plus_frames = DIV_ROUND_UP(missing_pcm_frames, lc3plus_ch_samples);
-			debug("Missing LC3plus frames: %zu", missing_lc3plus_frames);
+			warning("Missing LC3plus frames: %zu", missing_lc3plus_frames);
 		}
 #endif
 
@@ -536,7 +536,7 @@ void *a2dp_lc3plus_dec_thread(struct ba_transport_pcm *t_pcm) {
 		if (rtp_media_header->fragmented &&
 				rtp_media_header->first_fragment &&
 				bt_payload.nmemb < (len_ = rtp_media_header->frame_count * t->mtu_read)) {
-			debug("Resizing LC3plus payload buffer: %zd -> %zd", bt_payload.nmemb, len_);
+			warning("Resizing LC3plus payload buffer: %zd -> %zd", bt_payload.nmemb, len_);
 			if (ffb_init_uint8_t(&bt_payload, len_) == -1)
 				error("Couldn't resize LC3plus payload buffer: %s", strerror(errno));
 		}
@@ -548,7 +548,7 @@ void *a2dp_lc3plus_dec_thread(struct ba_transport_pcm *t_pcm) {
 
 		if (rtp_media_header->fragmented &&
 				!rtp_media_header->last_fragment) {
-			debug("Fragmented LC3plus frame [%u]: payload len: %zd",
+			warning("Fragmented LC3plus frame [%u]: payload len: %zd",
 					rtp.seq_number, payload_len);
 			continue;
 		}
@@ -665,18 +665,18 @@ static int a2dp_lc3plus_configuration_check(
 	case LC3PLUS_FRAME_DURATION_100:
 		break;
 	default:
-		debug("LC3plus: Invalid frame duration: %#x", conf->frame_duration);
+		warning("LC3plus: Invalid frame duration: %#x", conf->frame_duration);
 		return A2DP_CHECK_ERR_FRAME_DURATION;
 	}
 
 	if (a2dp_bit_mapping_lookup(a2dp_lc3plus_channels, conf_v.channel_mode) == 0) {
-		debug("LC3plus: Invalid channel mode: %#x", conf->channel_mode);
+		warning("LC3plus: Invalid channel mode: %#x", conf->channel_mode);
 		return A2DP_CHECK_ERR_CHANNEL_MODE;
 	}
 
 	uint16_t conf_sampling_freq = A2DP_LC3PLUS_GET_SAMPLING_FREQ(conf_v);
 	if (a2dp_bit_mapping_lookup(a2dp_lc3plus_samplings, conf_sampling_freq) == 0) {
-		debug("LC3plus: Invalid sampling frequency: %#x", A2DP_LC3PLUS_GET_SAMPLING_FREQ(*conf));
+		warning("LC3plus: Invalid sampling frequency: %#x", A2DP_LC3PLUS_GET_SAMPLING_FREQ(*conf));
 		return A2DP_CHECK_ERR_SAMPLING;
 	}
 

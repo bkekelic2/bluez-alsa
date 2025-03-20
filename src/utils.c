@@ -174,7 +174,7 @@ const char *lame_encode_strerror(int err) {
 	case -4:
 		return "Psycho acoustic error";
 	default:
-		debug("Unknown error code: %#x", err);
+		warning("Unknown error code: %#x", err);
 		return "Unknown error";
 	}
 }
@@ -255,7 +255,7 @@ const char *aacdec_strerror(AAC_DECODER_ERROR err) {
 	case AAC_DEC_TOO_MANY_ANC_ELEMENTS:
 		return "Too many ancillary elements";
 	default:
-		debug("Unknown error code: %#x", err);
+		warning("Unknown error code: %#x", err);
 		return "Unknown error";
 	}
 }
@@ -296,7 +296,7 @@ const char *aacenc_strerror(AACENC_ERROR err) {
 	case AACENC_ENCODE_EOF:
 		return "End of file";
 	}
-	debug("Unknown error code: %#x", err);
+	warning("Unknown error code: %#x", err);
 	return "Unknown error";
 }
 #endif
@@ -353,7 +353,7 @@ const char *lc3plus_strerror(LC3PLUS_Error err) {
 	case FRAMESIZE_ERROR:
 		return "Framesize error";
 	}
-	debug("Unknown error code: %#x", err);
+	warning("Unknown error code: %#x", err);
 	return "Unknown error";
 }
 #endif
@@ -428,7 +428,7 @@ const char *ldacBT_strerror(int err) {
 	case LDACBT_ERR_DEC_CONFIG_UPDATED:
 		return "Configuration updated";
 	}
-	debug("Unknown error code: %#x (API: %u, handle: %u, block: %u)",
+	warning("Unknown error code: %#x (API: %u, handle: %u, block: %u)",
 			err, LDACBT_API_ERR(err), LDACBT_HANDLE_ERR(err), LDACBT_BLOCK_ERR(err));
 	return "Unknown error";
 }

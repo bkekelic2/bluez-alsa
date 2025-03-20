@@ -199,7 +199,7 @@ CK_START_TEST(test_a2dp_caps) {
 
 	struct a2dp_sep * const * seps = a2dp_seps;
 	for (const struct a2dp_sep *sep = *seps; sep != NULL; sep = *++seps) {
-		debug("%s", sep->name);
+		warning("%s", sep->name);
 
 		/* Check whether all capability helpers are set. */
 

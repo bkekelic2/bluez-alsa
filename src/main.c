@@ -115,7 +115,7 @@ static void g_bus_name_acquired(GDBusConnection *conn, const char *name, void *u
 	(void)name;
 	(void)userdata;
 
-	debug("Acquired D-Bus service name: %s", name);
+	warning("Acquired D-Bus service name: %s", name);
 	dbus_name_acquired = true;
 
 	bluealsa_dbus_register();
@@ -596,7 +596,7 @@ int main(int argc, char **argv) {
 
 #if ENABLE_OFONO
 	if ((config.profile.hfp_ag || config.profile.hfp_hf) && config.profile.hfp_ofono) {
-		info("Disabling native HFP support due to enabled oFono profile");
+		warning("Disabling native HFP support due to enabled oFono profile");
 		config.profile.hfp_ag = false;
 		config.profile.hfp_hf = false;
 	}
@@ -660,7 +660,7 @@ int main(int argc, char **argv) {
 			g_bus_name_acquired, g_bus_name_lost, loop, NULL);
 
 	/* main dispatching loop */
-	debug("Starting main dispatching loop");
+	warning("Starting main dispatching loop");
 	g_main_loop_run(loop);
 
 	/* cleanup internal structures */

@@ -171,7 +171,7 @@ retry:
 			time_t diff_ms = timespec2ms(&diff);
 
 			if (diff_ms > 500) {
-				debug("BLE-MIDI time synchronization reset");
+				warning("BLE-MIDI time synchronization reset");
 				bmd->ts = ts0_time;
 			}
 			else if (rv < 0) {

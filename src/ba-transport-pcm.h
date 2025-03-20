@@ -192,7 +192,7 @@ int ba_transport_pcm_state_wait(
 typedef void *(*ba_transport_pcm_thread_func)(struct ba_transport_pcm *);
 
 #define debug_transport_pcm_thread_loop(pcm, tag) \
-	debug("PCM IO loop: %s: %s: %s", tag, __func__, ba_transport_debug_name((pcm)->t))
+	warning("PCM IO loop: %s: %s: %s", tag, __func__, ba_transport_debug_name((pcm)->t))
 
 void ba_transport_pcm_thread_cleanup(struct ba_transport_pcm *pcm);
 

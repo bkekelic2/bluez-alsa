@@ -106,7 +106,7 @@ CK_START_TEST(test_lc3_swb_decode_plc) {
 	uint8_t data[sizeof(sine)];
 	uint8_t *data_tail = data;
 
-	debug("Simulating eSCO packet loss events");
+	warning("Simulating eSCO packet loss events");
 
 	int rv;
 	size_t counter, i;

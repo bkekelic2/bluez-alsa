@@ -515,7 +515,7 @@ CK_START_TEST(test_notifications) {
 	while (snd_ctl_wait(ctl, 500) == 1)
 		while (snd_ctl_read(ctl, event) == 1) {
 			ck_assert_int_eq(snd_ctl_event_get_type(event), SND_CTL_EVENT_ELEM);
-			debug("Event: %s: %s", test_ctl_event_elem_get_mask_name(event),
+			warning("Event: %s: %s", test_ctl_event_elem_get_mask_name(event),
 					snd_ctl_event_elem_get_name(event));
 			events++;
 		}

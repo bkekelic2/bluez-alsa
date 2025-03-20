@@ -70,37 +70,37 @@ int storage_pcm_data_sync(struct ba_transport_pcm *pcm) { (void)pcm; return 0; }
 int storage_pcm_data_update(const struct ba_transport_pcm *pcm) { (void)pcm; return 0; }
 
 int bluealsa_dbus_pcm_register(struct ba_transport_pcm *pcm) {
-	debug("%s: %p", __func__, (void *)pcm);
+	warning("%s: %p", __func__, (void *)pcm);
 	pcm->ba_dbus_exported = true;
 	return 0; }
 void bluealsa_dbus_pcm_update(struct ba_transport_pcm *pcm, unsigned int mask) {
-	debug("%s: %p %#x", __func__, (void *)pcm, mask); (void)pcm;
+	warning("%s: %p %#x", __func__, (void *)pcm, mask); (void)pcm;
 	pthread_mutex_lock(&dbus_update_mtx);
 	dbus_update_counters.codec += !!(mask & BA_DBUS_PCM_UPDATE_CODEC);
 	dbus_update_counters.volume += !!(mask & BA_DBUS_PCM_UPDATE_VOLUME);
 	pthread_mutex_unlock(&dbus_update_mtx);
 	pthread_cond_signal(&dbus_update_cond); }
 void bluealsa_dbus_pcm_unregister(struct ba_transport_pcm *pcm) {
-	debug("%s: %p", __func__, (void *)pcm); (void)pcm; }
+	warning("%s: %p", __func__, (void *)pcm); (void)pcm; }
 int bluealsa_dbus_rfcomm_register(struct ba_rfcomm *r) {
-	debug("%s: %p", __func__, (void *)r); (void)r; return 0; }
+	warning("%s: %p", __func__, (void *)r); (void)r; return 0; }
 void bluealsa_dbus_rfcomm_update(struct ba_rfcomm *r, unsigned int mask) {
-	debug("%s: %p %#x", __func__, (void *)r, mask); (void)r;
+	warning("%s: %p %#x", __func__, (void *)r, mask); (void)r;
 	pthread_mutex_lock(&dbus_update_mtx);
 	dbus_update_counters.battery += !!(mask & BA_DBUS_RFCOMM_UPDATE_BATTERY);
 	pthread_mutex_unlock(&dbus_update_mtx);
 	pthread_cond_signal(&dbus_update_cond); }
 void bluealsa_dbus_rfcomm_unregister(struct ba_rfcomm *r) {
-	debug("%s: %p", __func__, (void *)r); (void)r; }
+	warning("%s: %p", __func__, (void *)r); (void)r; }
 bool bluez_a2dp_set_configuration(const char *current_dbus_sep_path,
 		const struct a2dp_sep_config *sep, const void *configuration, GError **error) {
-	debug("%s: %s: %p", __func__, current_dbus_sep_path, sep);
+	warning("%s: %s: %p", __func__, current_dbus_sep_path, sep);
 	(void)current_dbus_sep_path; (void)sep; (void)configuration; (void)error;
 	return false; }
 void bluez_battery_provider_update(struct ba_device *device) {
-	debug("%s: %p", __func__, device); (void)device; }
+	warning("%s: %p", __func__, device); (void)device; }
 int ofono_call_volume_update(struct ba_transport *t) {
-	debug("%s: %p", __func__, t); (void)t; return 0; }
+	warning("%s: %p", __func__, t); (void)t; return 0; }
 
 #define ck_assert_rfcomm_recv(fd, command) { \
 	char buffer[sizeof(command)] = { 0 }; \
@@ -470,14 +470,14 @@ CK_START_TEST(test_rfcomm_self_hfp_slc) {
 	ck_assert_int_eq(ba_transport_get_codec(ag), HFP_CODEC_CVSD);
 	ck_assert_int_eq(ba_transport_get_codec(hf), HFP_CODEC_CVSD);
 
-	debug("Audio gateway destroying");
+	warning("Audio gateway destroying");
 	ba_transport_destroy(ag);
 	/* The hf transport shall be destroyed by the "link lost" quirk. However,
 	 * we have to wait "some" time before reference counter check, because
 	 * this action is asynchronous from our point of view. */
-	debug("Hands Free unreferencing");
+	warning("Hands Free unreferencing");
 	ba_transport_unref(hf);
-	debug("Wait for asynchronous free");
+	warning("Wait for asynchronous free");
 	usleep(100000);
 
 	pthread_mutex_lock(&adapter->devices_mutex);

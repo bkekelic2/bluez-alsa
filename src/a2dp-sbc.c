@@ -489,12 +489,12 @@ static int a2dp_sbc_configuration_check(
 	a2dp_sbc_caps_intersect(&conf_v, &sep->config.capabilities);
 
 	if (a2dp_bit_mapping_lookup(a2dp_sbc_samplings, conf_v.sampling_freq) == 0) {
-		debug("SBC: Invalid sampling frequency: %#x", conf->sampling_freq);
+		warning("SBC: Invalid sampling frequency: %#x", conf->sampling_freq);
 		return A2DP_CHECK_ERR_SAMPLING;
 	}
 
 	if (a2dp_bit_mapping_lookup(a2dp_sbc_channels, conf_v.channel_mode) == 0) {
-		debug("SBC: Invalid channel mode: %#x", conf->channel_mode);
+		warning("SBC: Invalid channel mode: %#x", conf->channel_mode);
 		return A2DP_CHECK_ERR_CHANNEL_MODE;
 	}
 
@@ -505,7 +505,7 @@ static int a2dp_sbc_configuration_check(
 	case SBC_BLOCK_LENGTH_16:
 		break;
 	default:
-		debug("SBC: Invalid block length: %#x", conf->block_length);
+		warning("SBC: Invalid block length: %#x", conf->block_length);
 		return A2DP_CHECK_ERR_BLOCK_LENGTH;
 	}
 
@@ -514,7 +514,7 @@ static int a2dp_sbc_configuration_check(
 	case SBC_SUBBANDS_8:
 		break;
 	default:
-		debug("SBC: Invalid sub-bands: %#x", conf->subbands);
+		warning("SBC: Invalid sub-bands: %#x", conf->subbands);
 		return A2DP_CHECK_ERR_SUB_BANDS;
 	}
 
@@ -523,7 +523,7 @@ static int a2dp_sbc_configuration_check(
 	case SBC_ALLOCATION_LOUDNESS:
 		break;
 	default:
-		debug("SBC: Invalid allocation method: %#x", conf->allocation_method);
+		warning("SBC: Invalid allocation method: %#x", conf->allocation_method);
 		return A2DP_CHECK_ERR_ALLOCATION_METHOD;
 	}
 
@@ -533,7 +533,7 @@ static int a2dp_sbc_configuration_check(
 		return A2DP_CHECK_ERR_BIT_POOL_RANGE;
 	}
 
-	debug("SBC: Selected bit-pool range: [%u, %u]",
+	warning("SBC: Selected bit-pool range: [%u, %u]",
 			conf->min_bitpool, conf->max_bitpool);
 
 	return A2DP_CHECK_OK;
@@ -562,7 +562,7 @@ static int a2dp_sbc_source_init(struct a2dp_sep *sep) {
 
 	if (config.sbc_quality == SBC_QUALITY_XQ ||
 			config.sbc_quality == SBC_QUALITY_XQPLUS) {
-		info("SBC: Activating SBC Dual Channel HD (SBC %s)",
+		warning("SBC: Activating SBC Dual Channel HD (SBC %s)",
 				config.sbc_quality == SBC_QUALITY_XQ ? "XQ" : "XQ+");
 		sep->config.capabilities.sbc.sampling_freq = SBC_SAMPLING_FREQ_44100;
 		sep->config.capabilities.sbc.channel_mode = SBC_CHANNEL_MODE_DUAL_CHANNEL;

@@ -401,7 +401,7 @@ static int a2dp_opus_configuration_check(
 	a2dp_opus_caps_intersect(&conf_v, &sep->config.capabilities);
 
 	if (a2dp_bit_mapping_lookup(a2dp_opus_samplings, conf_v.sampling_freq) == 0) {
-		debug("Opus: Invalid sampling frequency: %#x", conf->sampling_freq);
+		warning("Opus: Invalid sampling frequency: %#x", conf->sampling_freq);
 		return A2DP_CHECK_ERR_SAMPLING;
 	}
 
@@ -410,12 +410,12 @@ static int a2dp_opus_configuration_check(
 	case OPUS_FRAME_DURATION_200:
 		break;
 	default:
-		debug("Opus: Invalid frame duration: %#x", conf->frame_duration);
+		warning("Opus: Invalid frame duration: %#x", conf->frame_duration);
 		return A2DP_CHECK_ERR_FRAME_DURATION;
 	}
 
 	if (a2dp_bit_mapping_lookup(a2dp_opus_channels, conf_v.channel_mode) == 0) {
-		debug("Opus: Invalid channel mode: %#x", conf->channel_mode);
+		warning("Opus: Invalid channel mode: %#x", conf->channel_mode);
 		return A2DP_CHECK_ERR_CHANNEL_MODE;
 	}
 

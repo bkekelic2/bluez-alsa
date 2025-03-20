@@ -262,7 +262,7 @@ void *bt_dump_io_thread(struct ba_transport_pcm *t_pcm) {
 	snprintf(fname, sizeof(fname), "/tmp/bluealsa-%s.btd",
 			transport_to_fname(t));
 
-	debug("Creating BT dump file: %s", fname);
+	warning("Creating BT dump file: %s", fname);
 	if ((btd = bt_dump_create(fname, t)) == NULL) {
 		error("Couldn't create BT dump file: %s", strerror(errno));
 		goto fail_open;
@@ -287,7 +287,7 @@ void *bt_dump_io_thread(struct ba_transport_pcm *t_pcm) {
 			goto fail;
 		}
 
-		debug("BT read: %zd", len);
+		warning("BT read: %zd", len);
 		bt_dump_write(btd, bt.data, len);
 
 	}

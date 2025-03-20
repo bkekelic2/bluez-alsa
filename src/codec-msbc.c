@@ -46,12 +46,12 @@
 int msbc_init(struct esco_msbc *msbc) {
 
 	if (!msbc->initialized) {
-		debug("Initializing mSBC codec");
+		warning("Initializing mSBC codec");
 		if ((errno = -sbc_init_msbc(&msbc->sbc, 0)) != 0)
 			return -errno;
 	}
 	else {
-		debug("Re-initializing mSBC codec");
+		warning("Re-initializing mSBC codec");
 		if ((errno = -sbc_reinit_msbc(&msbc->sbc, 0)) != 0)
 			return -errno;
 	}

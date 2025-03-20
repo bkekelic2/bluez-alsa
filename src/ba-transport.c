@@ -145,7 +145,7 @@ static void transport_threads_cancel_if_no_clients(struct ba_transport *t) {
 	pthread_mutex_unlock(&t->bt_fd_mtx);
 
 	if (stop) {
-		debug("Stopping transport: %s", "No PCM clients");
+		warning("Stopping transport: %s", "No PCM clients");
 		if (t->profile & BA_TRANSPORT_PROFILE_MASK_A2DP) {
 			ba_transport_pcm_state_set_stopping(&t->a2dp.pcm);
 			ba_transport_pcm_state_set_stopping(&t->a2dp.pcm_bc);
@@ -200,7 +200,7 @@ static void *transport_thread_manager(struct ba_transport *t) {
 				timeout = -1;
 				break;
 			case BA_TRANSPORT_THREAD_MANAGER_CANCEL_IF_NO_CLIENTS:
-				debug("PCM clients check keep-alive: %d ms", config.keep_alive_time);
+				warning("PCM clients check keep-alive: %d ms", config.keep_alive_time);
 				timeout = config.keep_alive_time;
 				break;
 			}
@@ -316,8 +316,8 @@ static int transport_acquire_bt_a2dp(struct ba_transport *t) {
 	if (ioctl(fd, TIOCOUTQ, &t->a2dp.bt_fd_coutq_init) == -1)
 		warn("Couldn't get socket queued bytes: %s", strerror(errno));
 
-	debug("New A2DP transport: %d", fd);
-	debug("A2DP socket MTU: %d: R:%u W:%u", fd, mtu_read, mtu_write);
+	warning("New A2DP transport: %d", fd);
+	warning("A2DP socket MTU: %d: R:%u W:%u", fd, mtu_read, mtu_write);
 
 fail:
 	g_object_unref(msg);
@@ -343,7 +343,7 @@ static int transport_release_bt_a2dp(struct ba_transport *t) {
 	if (t->a2dp.state != BLUEZ_A2DP_TRANSPORT_STATE_IDLE &&
 			t->bluez_dbus_owner != NULL) {
 
-		debug("Releasing A2DP transport: %d", t->bt_fd);
+		warning("Releasing A2DP transport: %d", t->bt_fd);
 
 		msg = g_dbus_message_new_method_call(t->bluez_dbus_owner, t->bluez_dbus_path,
 				BLUEZ_IFACE_MEDIA_TRANSPORT, "Release");
@@ -378,7 +378,7 @@ static int transport_release_bt_a2dp(struct ba_transport *t) {
 
 	}
 
-	debug("Closing A2DP transport: %d", t->bt_fd);
+	warning("Closing A2DP transport: %d", t->bt_fd);
 
 	ret = 0;
 	close(t->bt_fd);
@@ -479,7 +479,7 @@ int transport_acquire_bt_sco(struct ba_transport *t) {
 	gettimestamp(&now);
 	timespecadd(&t->sco.closed_at, &delay, &delay);
 	if (difftimespec(&now, &delay, &delay) > 0) {
-		info("SCO link close-connect quirk delay: %d ms",
+		warning("SCO link close-connect quirk delay: %d ms",
 				(int)(delay.tv_nsec / 1000000));
 		nanosleep(&delay, NULL);
 	}
@@ -491,7 +491,7 @@ int transport_acquire_bt_sco(struct ba_transport *t) {
 		goto fail;
 	}
 
-	debug("New SCO link: %s: %d", batostr_(&d->addr), fd);
+	warning("New SCO link: %s: %d", batostr_(&d->addr), fd);
 
 	t->mtu_read = t->mtu_write = hci_sco_get_mtu(fd, d->a);
 	t->bt_fd = fd;
@@ -506,7 +506,7 @@ fail:
 
 static int transport_release_bt_sco(struct ba_transport *t) {
 
-	debug("Releasing SCO link: %d", t->bt_fd);
+	warning("Releasing SCO link: %d", t->bt_fd);
 
 	shutdown(t->bt_fd, SHUT_RDWR);
 	close(t->bt_fd);
@@ -539,7 +539,7 @@ struct ba_transport *ba_transport_new_sco(
 	 * from commercial devices and for BlueALSA to BlueALSA connections we get
 	 * the desired result. */
 	if ((t = ba_transport_lookup(device, dbus_path)) != NULL) {
-		debug("SCO transport already connected: %s", ba_transport_debug_name(t));
+		warning("SCO transport already connected: %s", ba_transport_debug_name(t));
 		ba_transport_unref(t);
 		errno = EBUSY;
 		return NULL;
@@ -626,13 +626,13 @@ static int transport_release_bt_midi(struct ba_transport *t) {
 	midi_transport_alsa_seq_delete(t);
 
 	if (t->midi.ble_fd_write != -1) {
-		debug("Releasing BLE-MIDI write link: %d", t->midi.ble_fd_write);
+		warning("Releasing BLE-MIDI write link: %d", t->midi.ble_fd_write);
 		close(t->midi.ble_fd_write);
 		t->midi.ble_fd_write = -1;
 	}
 
 	if (t->midi.ble_fd_notify != -1) {
-		debug("Releasing BLE-MIDI notify link: %d", t->midi.ble_fd_notify);
+		warning("Releasing BLE-MIDI notify link: %d", t->midi.ble_fd_notify);
 		close(t->midi.ble_fd_notify);
 		t->midi.ble_fd_notify = -1;
 	}
@@ -724,7 +724,7 @@ const char *ba_transport_debug_name(
 		return "MIDI";
 #endif
 	}
-	debug("Unknown transport: profile:%#x codec:%#x",
+	warning("Unknown transport: profile:%#x codec:%#x",
 			t->profile, ba_transport_get_codec(t));
 	return "N/A";
 }
@@ -823,7 +823,7 @@ void ba_transport_unref(struct ba_transport *t) {
 		storage_pcm_data_update(&t->sco.pcm_mic);
 	}
 
-	debug("Freeing transport: %s", ba_transport_debug_name(t));
+	warning("Freeing transport: %s", ba_transport_debug_name(t));
 	g_assert_cmpint(ref_count, ==, 0);
 
 	if (t->bt_fd != -1)
@@ -1072,7 +1072,7 @@ int ba_transport_start(struct ba_transport *t) {
 	if (!is_enc_idle || !is_dec_idle)
 		return errno = EINVAL, -1;
 
-	debug("Starting transport: %s", ba_transport_debug_name(t));
+	warning("Starting transport: %s", ba_transport_debug_name(t));
 
 	if (t->profile & BA_TRANSPORT_PROFILE_MASK_A2DP)
 		return a2dp_transport_start(t);
@@ -1193,7 +1193,7 @@ int ba_transport_acquire(struct ba_transport *t) {
 	/* If BT socket file descriptor is still valid, we
 	 * can safely reuse it (e.g. in a keep-alive mode). */
 	if ((fd = t->bt_fd) != -1) {
-		debug("Reusing BT socket: %d", fd);
+		warning("Reusing BT socket: %d", fd);
 		goto final;
 	}
 

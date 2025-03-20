@@ -134,7 +134,7 @@ unsigned int hci_sco_get_mtu(int sco_fd, struct ba_adapter *a) {
 	if (getsockopt(sco_fd, SOL_BLUETOOTH, BT_VOICE, &voice, &len) == -1)
 		warn("Couldn't get SCO voice options: %s", strerror(errno));
 
-	debug("SCO link socket MTU: %d: %u", sco_fd, options.mtu);
+	warning("SCO link socket MTU: %d: %u", sco_fd, options.mtu);
 
 	/* XXX: It seems, that the MTU value returned by kernel btusb driver
 	 *      is incorrect. */
@@ -148,7 +148,7 @@ unsigned int hci_sco_get_mtu(int sco_fd, struct ba_adapter *a) {
 			else
 				options.mtu = 24;
 		}
-		debug("USB adjusted SCO MTU: %d: %u", sco_fd, options.mtu);
+		warning("USB adjusted SCO MTU: %d: %u", sco_fd, options.mtu);
 	}
 
 	return options.mtu;

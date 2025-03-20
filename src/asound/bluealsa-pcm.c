@@ -129,7 +129,7 @@ struct bluealsa_pcm {
 /**
  * Helper debug macro for internal usage. */
 #define debug2(M, ...) \
-	debug("%s: " M, pcm->ba_pcm.pcm_path, ## __VA_ARGS__)
+	warning("%s: " M, pcm->ba_pcm.pcm_path, ## __VA_ARGS__)
 
 #if SND_LIB_VERSION < 0x010106
 /**
@@ -1535,7 +1535,7 @@ SND_PCM_PLUGIN_DEFINE_FUNC(bluealsa) {
 		goto fail;
 	}
 
-	debug("Getting BlueALSA PCM: %s %s %s", snd_pcm_stream_name(stream), device, profile);
+	warning("Getting BlueALSA PCM: %s %s %s", snd_pcm_stream_name(stream), device, profile);
 	if (!ba_dbus_pcm_get(&pcm->dbus_ctx, &ba_addr, ba_profile,
 				stream == SND_PCM_STREAM_PLAYBACK ? BA_PCM_MODE_SINK : BA_PCM_MODE_SOURCE,
 				&pcm->ba_pcm, &err)) {

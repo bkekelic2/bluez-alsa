@@ -369,19 +369,19 @@ static int a2dp_faststream_configuration_check(
 	a2dp_faststream_caps_intersect(&conf_v, &sep->config.capabilities);
 
 	if ((conf_v.direction & (FASTSTREAM_DIRECTION_MUSIC | FASTSTREAM_DIRECTION_VOICE)) == 0) {
-		debug("FastStream: Invalid direction: %#x", conf->direction);
+		warning("FastStream: Invalid direction: %#x", conf->direction);
 		return A2DP_CHECK_ERR_DIRECTIONS;
 	}
 
 	if (conf_v.direction & FASTSTREAM_DIRECTION_VOICE &&
 			a2dp_bit_mapping_lookup(a2dp_faststream_samplings_voice, conf_v.sampling_freq_voice) == 0) {
-		debug("FastStream: Invalid voice sampling frequency: %#x", conf->sampling_freq_voice);
+		warning("FastStream: Invalid voice sampling frequency: %#x", conf->sampling_freq_voice);
 		return A2DP_CHECK_ERR_SAMPLING_VOICE;
 	}
 
 	if (conf_v.direction & FASTSTREAM_DIRECTION_MUSIC &&
 			a2dp_bit_mapping_lookup(a2dp_faststream_samplings_music, conf_v.sampling_freq_music) == 0) {
-		debug("FastStream: Invalid music sampling frequency: %#x", conf->sampling_freq_music);
+		warning("FastStream: Invalid music sampling frequency: %#x", conf->sampling_freq_music);
 		return A2DP_CHECK_ERR_SAMPLING_MUSIC;
 	}
 

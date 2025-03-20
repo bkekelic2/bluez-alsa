@@ -78,7 +78,7 @@ static struct bluez_midi_app *bluez_midi_app_ref(struct bluez_midi_app *app) {
 static void bluez_midi_app_unref(struct bluez_midi_app *app) {
 	if (atomic_fetch_sub_explicit(&app->ref_count, 1, memory_order_relaxed) > 1)
 		return;
-	debug("Freeing MIDI GATT application: %s", app->path);
+	warning("Freeing MIDI GATT application: %s", app->path);
 	if (app->notify_watch_hup != NULL) {
 		g_source_destroy(app->notify_watch_hup);
 		g_source_unref(app->notify_watch_hup);
@@ -123,7 +123,7 @@ fail:
 
 static void bluez_midi_advertisement_release(
 		GDBusMethodInvocation *inv, G_GNUC_UNUSED void *userdata) {
-	debug("Releasing MIDI LE advertisement: %s", ((struct bluez_midi_app *)userdata)->path);
+	warning("Releasing MIDI LE advertisement: %s", ((struct bluez_midi_app *)userdata)->path);
 	g_object_unref(inv);
 }
 
@@ -253,7 +253,7 @@ static void bluez_midi_characteristic_acquire_write(
 		goto fail;
 	}
 
-	debug("New BLE-MIDI write link (MTU: %u): %d", mtu, fds[0]);
+	warning("New BLE-MIDI write link (MTU: %u): %d", mtu, fds[0]);
 	app->write_acquired = true;
 	t->midi.ble_fd_write = fds[0];
 	t->mtu_read = mtu;
@@ -284,7 +284,7 @@ static gboolean bluez_midi_characteristic_release_notify(
 	g_source_unref(app->notify_watch_hup);
 	app->notify_watch_hup = NULL;
 
-	debug("Releasing BLE-MIDI notify link: %d", t->midi.ble_fd_notify);
+	warning("Releasing BLE-MIDI notify link: %d", t->midi.ble_fd_notify);
 
 	app->notify_acquired = false;
 	close(t->midi.ble_fd_notify);
@@ -313,7 +313,7 @@ static void bluez_midi_characteristic_acquire_notify(
 		goto fail;
 	}
 
-	debug("New BLE-MIDI notify link (MTU: %u): %d", mtu, fds[0]);
+	warning("New BLE-MIDI notify link (MTU: %u): %d", mtu, fds[0]);
 	app->notify_acquired = true;
 	t->midi.ble_fd_notify = fds[0];
 	ble_midi_encode_set_mtu(&t->midi.ble_encoder, mtu);
@@ -430,7 +430,7 @@ static void bluez_midi_app_register(
 
 	g_dbus_message_set_body(msg, g_variant_new("(oa{sv})", app->path, NULL));
 
-	debug("Registering MIDI GATT application: %s", app->path);
+	warning("Registering MIDI GATT application: %s", app->path);
 	g_dbus_connection_send_message_with_reply(config.dbus, msg,
 			G_DBUS_SEND_MESSAGE_FLAGS_NONE, -1, NULL, NULL,
 			bluez_midi_app_register_finish, NULL);
@@ -466,7 +466,7 @@ static void bluez_midi_app_advertise(
 
 	g_dbus_message_set_body(msg, g_variant_new("(oa{sv})", app->path_adv, NULL));
 
-	debug("Registering MIDI LE advertisement: %s", app->path);
+	warning("Registering MIDI LE advertisement: %s", app->path);
 	g_dbus_connection_send_message_with_reply(config.dbus, msg,
 			G_DBUS_SEND_MESSAGE_FLAGS_NONE, -1, NULL, NULL,
 			bluez_midi_app_advertise_finish, NULL);

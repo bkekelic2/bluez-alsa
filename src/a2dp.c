@@ -387,7 +387,7 @@ const char *a2dp_check_strerror(
 	case A2DP_CHECK_ERR_FRAME_DURATION:
 		return "Invalid frame duration";
 	}
-	debug("Unknown error code: %#x", err);
+	warning("Unknown error code: %#x", err);
 	return "Check error";
 }
 

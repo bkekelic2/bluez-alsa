@@ -113,7 +113,7 @@ static void *mock_bt_dump_thread(void *userdata) {
 	if (mock_dump_output)
 		f_output = fopen("bluealsa-mock.dump", "w");
 
-	debug("IO loop: START: %s", __func__);
+	warning("IO loop: START: %s", __func__);
 	while ((len = read(bt_fd, buffer, sizeof(buffer))) > 0) {
 		fprintf(stderr, "#");
 
@@ -126,7 +126,7 @@ static void *mock_bt_dump_thread(void *userdata) {
 
 	}
 
-	debug("IO loop: EXIT: %s", __func__);
+	warning("IO loop: EXIT: %s", __func__);
 	if (f_output != NULL)
 		fclose(f_output);
 	close(bt_fd);

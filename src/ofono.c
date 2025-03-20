@@ -84,7 +84,7 @@ static int ofono_acquire_bt_sco(struct ba_transport *t) {
 	int fd = -1;
 	int ret = -1;
 
-	debug("Requesting new oFono SCO link: %s", t->sco.ofono_dbus_path_card);
+	warning("Requesting new oFono SCO link: %s", t->sco.ofono_dbus_path_card);
 	msg = g_dbus_message_new_method_call(t->bluez_dbus_owner,
 			t->sco.ofono_dbus_path_card, OFONO_IFACE_HF_AUDIO_CARD, "Acquire");
 
@@ -95,7 +95,7 @@ static int ofono_acquire_bt_sco(struct ba_transport *t) {
 	gettimestamp(&now);
 	timespecadd(&t->sco.closed_at, &delay, &delay);
 	if (difftimespec(&now, &delay, &delay) > 0) {
-		info("SCO link close-connect quirk delay: %d ms",
+		warning("SCO link close-connect quirk delay: %d ms",
 				(int)(delay.tv_nsec / 1000000));
 		nanosleep(&delay, NULL);
 	}
@@ -131,7 +131,7 @@ static int ofono_acquire_bt_sco(struct ba_transport *t) {
 	t->mtu_read = t->mtu_write = hci_sco_get_mtu(fd, t->d->a);
 	ba_transport_set_codec(t, codec);
 
-	debug("New oFono SCO link (codec: %#x): %d", codec, fd);
+	warning("New oFono SCO link (codec: %#x): %d", codec, fd);
 	ret = 0;
 
 fail:
@@ -156,7 +156,7 @@ fail:
  * @return On success this function returns 0. Otherwise -1 is returned. */
 static int ofono_release_bt_sco(struct ba_transport *t) {
 
-	debug("Closing oFono SCO link: %d", t->bt_fd);
+	warning("Closing oFono SCO link: %d", t->bt_fd);
 
 	shutdown(t->bt_fd, SHUT_RDWR);
 	close(t->bt_fd);
@@ -299,7 +299,7 @@ static void ofono_new_connection_request(struct ba_transport *t) {
 
 	GDBusMessage *msg;
 
-	debug("Requesting new oFono SCO link: %s", t->sco.ofono_dbus_path_card);
+	warning("Requesting new oFono SCO link: %s", t->sco.ofono_dbus_path_card);
 	msg = g_dbus_message_new_method_call(t->bluez_dbus_owner,
 			t->sco.ofono_dbus_path_card, OFONO_IFACE_HF_AUDIO_CARD, "Connect");
 
@@ -383,7 +383,7 @@ static int ofono_card_link_modem(struct ofono_card_data *ocd) {
 				!(is_bt_device && bacmp(&bt_addr, &ocd->bt_addr) == 0))
 			continue;
 
-		debug("Linking oFono card with modem: %s", modem);
+		warning("Linking oFono card with modem: %s", modem);
 		strncpy(ocd->modem_path, modem, sizeof(ocd->modem_path) - 1);
 		ocd->modem_path[sizeof(ocd->modem_path) - 1] = '\0';
 		ret = 0;
@@ -422,12 +422,12 @@ static unsigned int ofono_call_volume_property_sync(struct ba_transport *t,
 
 		if (t->profile & BA_TRANSPORT_PROFILE_MASK_AG &&
 				mic->soft_volume) {
-			debug("Skipping SCO microphone mute update: %s", "Software volume enabled");
+			warning("Skipping SCO microphone mute update: %s", "Software volume enabled");
 			goto final;
 		}
 
 		bool muted = g_variant_get_boolean(value);
-		debug("Updating SCO microphone mute: %s", muted ? "true" : "false");
+		warning("Updating SCO microphone mute: %s", muted ? "true" : "false");
 		mask |= OFONO_CALL_VOLUME_MICROPHONE;
 
 		pthread_mutex_lock(&mic->mutex);
@@ -441,13 +441,13 @@ static unsigned int ofono_call_volume_property_sync(struct ba_transport *t,
 
 		if (t->profile & BA_TRANSPORT_PROFILE_MASK_AG &&
 				spk->soft_volume) {
-			debug("Skipping SCO speaker volume update: %s", "Software volume enabled");
+			warning("Skipping SCO speaker volume update: %s", "Software volume enabled");
 			goto final;
 		}
 
 		uint8_t volume = g_variant_get_byte(value) * HFP_VOLUME_GAIN_MAX / 100;
 		int level = ba_transport_pcm_volume_range_to_level(volume, HFP_VOLUME_GAIN_MAX);
-		debug("Updating SCO speaker volume: %u [%.2f dB]", volume, 0.01 * level);
+		warning("Updating SCO speaker volume: %u [%.2f dB]", volume, 0.01 * level);
 		mask |= OFONO_CALL_VOLUME_SPEAKER;
 
 		pthread_mutex_lock(&spk->mutex);
@@ -461,13 +461,13 @@ static unsigned int ofono_call_volume_property_sync(struct ba_transport *t,
 
 		if (t->profile & BA_TRANSPORT_PROFILE_MASK_AG &&
 				mic->soft_volume) {
-			debug("Skipping SCO microphone volume update: %s", "Software volume enabled");
+			warning("Skipping SCO microphone volume update: %s", "Software volume enabled");
 			goto final;
 		}
 
 		uint8_t volume = g_variant_get_byte(value) * HFP_VOLUME_GAIN_MAX / 100;
 		int level = ba_transport_pcm_volume_range_to_level(volume, HFP_VOLUME_GAIN_MAX);
-		debug("Updating SCO microphone volume: %u [%.2f dB]", volume, 0.01 * level);
+		warning("Updating SCO microphone volume: %u [%.2f dB]", volume, 0.01 * level);
 		mask |= OFONO_CALL_VOLUME_MICROPHONE;
 
 		pthread_mutex_lock(&mic->mutex);
@@ -597,7 +597,7 @@ static void ofono_card_add(const char *dbus_sender, const char *card,
 		value = NULL;
 	}
 
-	debug("Adding new oFono card: %s", card);
+	warning("Adding new oFono card: %s", card);
 
 	if ((a = ba_adapter_lookup(hci_dev_id)) == NULL) {
 		error("Couldn't lookup adapter: hci%d: %s", hci_dev_id, strerror(errno));
@@ -713,7 +713,7 @@ static void ofono_remove_all_cards(void) {
 	g_hash_table_iter_init(&iter, ofono_card_data_map);
 	while (g_hash_table_iter_next(&iter, NULL, (void *)&ocd)) {
 
-		debug("Removing oFono card: %s", ocd->card);
+		warning("Removing oFono card: %s", ocd->card);
 
 		struct ba_transport *t;
 		if ((t = ofono_transport_lookup(ocd)) != NULL)
@@ -766,7 +766,7 @@ static void ofono_agent_new_connection(GDBusMethodInvocation *inv, void *userdat
 			close(fd);
 		}
 
-		debug("Initialized oFono SCO link codec: %#x", codec);
+		warning("Initialized oFono SCO link codec: %#x", codec);
 		ba_transport_set_codec(t, codec);
 		ba_transport_unref(t);
 
@@ -796,7 +796,7 @@ static void ofono_agent_new_connection(GDBusMethodInvocation *inv, void *userdat
 
 	pthread_mutex_lock(&t->bt_fd_mtx);
 
-	debug("New oFono SCO link (codec: %#x): %d", codec, fd);
+	warning("New oFono SCO link (codec: %#x): %d", codec, fd);
 
 	t->bt_fd = fd;
 	t->mtu_read = t->mtu_write = hci_sco_get_mtu(fd, t->d->a);
@@ -859,7 +859,7 @@ int ofono_register(void) {
 	GError *err = NULL;
 	int ret = -1;
 
-	debug("Registering oFono audio agent: %s", dbus_agent_object_path);
+	warning("Registering oFono audio agent: %s", dbus_agent_object_path);
 
 	if (dbus_hf_agent == NULL) {
 		OrgOfonoHandsfreeAudioAgentSkeleton *ifs_hf_agent;
@@ -926,7 +926,7 @@ static void ofono_signal_card_added(GDBusConnection *conn, const char *sender,
 	GVariantIter *properties = NULL;
 
 	g_variant_get(params, "(&oa{sv})", &card, &properties);
-	debug("Signal: %s.%s(%s, ...)", interface, signal, card);
+	warning("Signal: %s.%s(%s, ...)", interface, signal, card);
 
 	ofono_card_add(sender, card, properties);
 
@@ -948,7 +948,7 @@ static void ofono_signal_card_removed(GDBusConnection *conn, const char *sender,
 
 	const char *card = NULL;
 	g_variant_get(params, "(&o)", &card);
-	debug("Signal: %s.%s(%s)", interface, signal, card);
+	warning("Signal: %s.%s(%s)", interface, signal, card);
 
 	struct ba_transport *t;
 	if ((t = ofono_transport_lookup_card(card)) != NULL)
@@ -979,7 +979,7 @@ static void ofono_signal_volume_changed(GDBusConnection *conn, const char *sende
 	GVariant *value;
 
 	g_variant_get(params, "(&sv)", &property, &value);
-	debug("Signal: %s.%s(%s, ...)", interface, signal, property);
+	warning("Signal: %s.%s(%s, ...)", interface, signal, property);
 
 	unsigned int mask = ofono_call_volume_property_sync(t, property, value);
 	if (mask & OFONO_CALL_VOLUME_SPEAKER)
@@ -1054,7 +1054,7 @@ bool ofono_detect_service(void) {
 	GDBusMessage *msg = NULL, *rep = NULL;
 	bool status = true;
 
-	debug("Checking oFono service presence");
+	warning("Checking oFono service presence");
 
 	msg = g_dbus_message_new_method_call(OFONO_SERVICE, "/",
 			OFONO_IFACE_MANAGER, "GetModems");
