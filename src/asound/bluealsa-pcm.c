@@ -129,7 +129,7 @@ struct bluealsa_pcm {
 /**
  * Helper debug macro for internal usage. */
 #define debug2(M, ...) \
-	warn("%s: " M, pcm->ba_pcm.pcm_path, ## __VA_ARGS__)
+	warn("%s: " M, "pcm->ba_pcm.pcm_path", ## __VA_ARGS__)
 
 #if SND_LIB_VERSION < 0x010106
 /**
